@@ -6,7 +6,7 @@ schemaVersion = "0.0.1"
 namespace = "adamant"
 name = "Modpack"
 versionNumber = "1.0.0"
-description = "Manage which boons are banned from appearing in runs."
+description = "Select your first hammer and various bug fixes/options."
 websiteUrl = "https://github.com/maybe-adamant/H2-Modpack"
 containsNsfwContent = false
 

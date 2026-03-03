@@ -40,6 +40,7 @@ end
 
 local function on_reload()
     import_as_fallback(rom.game)
+    -- import("logic.lua")
     
     import ("ui.lua")
 end

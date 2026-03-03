@@ -9,6 +9,33 @@ return {
         WeaponLob        = "",
         WeaponSuit       = "",
     },
-    ModEnabled = true
+    ModEnabled = true,
+    DebugMode = true,
+
+    ArachneAndMedeaPity = true,
+
+    -- DisableCharybdis = false,
+    CharybdisBehaviorAdjustment = false,
+
+    DisableSeleneBeforeBoon = false,
+
+    BugFixes = {
+        CorrosionFix = true,
+        GGGFix = true,
+        BraidFix = true,
+        ExtraDoseFix = true,
+        PoseidonWavesFix = true,
+        SeleneFix = true,
+        TidalRingFix = true,
+        ShimmeringFix = true,
+        StagedOmegaFix = true,
+        ETAnubisFix = true,
+        -- ETSupayFix = true,
+        SecondStageChannelingFix = true,
+        OmegaCastEffectsFix = true,
+        CardioTorchFix = true,
+
+    },
+
 
 }

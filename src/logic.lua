@@ -592,28 +592,29 @@ modutil.mod.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
 end)
 
 --Removing Poseiidon Waves from interacting with cardio gain
---OVERRIDE so risky but lets see
-modutil.mod.Path.Wrap("CheckManaOnHit", function(baseFunc, victim, functionArgs, triggerArgs)
-    if not config.BugFixes.CardioTorchFix then
-        return baseFunc(victim, functionArgs, triggerArgs)
-    end
-    if functionArgs.IsNotEx and IsExWeapon( triggerArgs.SourceWeapon, {Combat = true}, triggerArgs ) then
-		return
-	end	
-	local validWeapons = ConcatTableValues( ShallowCopyTable(functionArgs.ValidWeapons), AddLinkedWeapons( functionArgs.ValidWeapons))
-	local passesHitCheck = functionArgs.FirstHitOnly == nil or (functionArgs.FirstHitOnly and not ProjectileHasUnitHit( triggerArgs.ProjectileId, "ManaOnHit" ))
+-- modutil.mod.Path.Wrap("CheckManaOnHit", function(baseFunc, victim, functionArgs, triggerArgs)
+--     if not config.BugFixes.CardioTorchFix then
+--         return baseFunc(victim, functionArgs, triggerArgs)
+--     end
+--     if functionArgs.IsNotEx and IsExWeapon( triggerArgs.SourceWeapon, {Combat = true}, triggerArgs ) then
+-- 		return
+-- 	end	
+-- 	local validWeapons = ConcatTableValues( ShallowCopyTable(functionArgs.ValidWeapons), AddLinkedWeapons( functionArgs.ValidWeapons))
+-- 	local passesHitCheck = functionArgs.FirstHitOnly == nil or (functionArgs.FirstHitOnly and not ProjectileHasUnitHit( triggerArgs.ProjectileId, "ManaOnHit" ))
 	
-	if triggerArgs.SourceProjectile ~= nil and functionArgs.MultihitProjectileWhitelistLookup and functionArgs.MultihitProjectileWhitelistLookup[triggerArgs.SourceProjectile] and functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile] then
-		local conditions = functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile]
-		passesHitCheck = true
-		if conditions.Cooldown then
-			passesHitCheck = false
-		end
-	end
-	if Contains( validWeapons, triggerArgs.SourceWeapon ) and passesHitCheck then
-		ProjectileRecordUnitHit( triggerArgs.ProjectileId, "ManaOnHit")
-		ManaDelta(functionArgs.ManaGain)
-	end
+-- 	if triggerArgs.SourceProjectile ~= nil and functionArgs.MultihitProjectileWhitelistLookup and functionArgs.MultihitProjectileWhitelistLookup[triggerArgs.SourceProjectile] and functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile] then
+-- 		local conditions = functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile]
+-- 		passesHitCheck = true
+-- 		if conditions.Cooldown then
+-- 			passesHitCheck = false
+-- 		end
+-- 	end
+-- 	if Contains( validWeapons, triggerArgs.SourceWeapon ) and passesHitCheck then
+-- 		ProjectileRecordUnitHit( triggerArgs.ProjectileId, "ManaOnHit")
+-- 		ManaDelta(functionArgs.ManaGain)
+-- 	end
 
-end)
+-- end)
+
+
 SetupRunData()

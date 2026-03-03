@@ -1,13 +1,12 @@
 # Hades 2 Utility and Bugfix Modpack
 
-This mod provides an in-game ImGui menu to configure targeted gameplay adjustments, starting hammer selection, and various bug fixes. All features can be toggled individually.
+This mod provides an in-game ImGui menu to configure targeted gameplay adjustments, starting hammer selection, and various bug fixes. All features can be toggled individually. Inspired by Hades 1 Speedrunning Modpack
 
 ## Features & Gameplay Adjustments
 
 * **Starting Hammer Selection:** Allows the player to select a specific hammer for their equipped weapon via the in-game UI. The chosen hammer is guaranteed on the first hammer drop. If the selected hammer is ineligible due to weapon aspects or other conditions, the game defaults to vanilla random generation.
 * **Arachne and Medea Pity:** Forces the Medea pity mechanic and disables the Arachne pity mechanic.
 * **Charybdis Behavior Adjustment:** Modifies the Charybdis boss fight phase transition. Tentacles despawn in 1 second instead of 9 seconds, and spit attacks are reduced from 8 to 6.
-* **Disable Charybdis (Optional):** Replaces the Charybdis encounter entirely with the alternate pirate miniboss encounter.
 * **Disable Selene Before First Boon:** Prevents Selene's Gift from spawning until the player has acquired at least one core Olympian boon or weapon upgrade.
 
 ## Bug Fixes

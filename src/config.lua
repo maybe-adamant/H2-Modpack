@@ -29,7 +29,7 @@ return {
         TidalRingFix = true,
         ShimmeringFix = true,
         StagedOmegaFix = true,
-        ETAnubisFix = true,
+        ETFix = true,
         -- ETSupayFix = true,
         SecondStageChannelingFix = true,
         OmegaCastEffectsFix = true,

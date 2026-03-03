@@ -294,7 +294,7 @@ local function ApolloDoubleAnubisWall( weaponData, args, triggerArgs )
     })
 end
 
-if config.BugFixes.ETAnubisFix then
+if config.BugFixes.ETFix then
     Utils.ApplyTraitChanges("DoubleExManaBoon", function(trait)
         if trait.PropertyChanges then
             for _, propertyChange in ipairs(trait.PropertyChanges) do

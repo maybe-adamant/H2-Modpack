@@ -147,8 +147,8 @@ local function DrawMainWindow()
         if chg then config.BugFixes.StagedOmegaFix = val end
         ImGui.TextDisabled("Fixes Some Omega Moves like Axe OAtk and Blade OSpec not benefiting from channeling bonus") 
 
-        local val, chg = ImGui.Checkbox("ET Fixes", config.BugFixes.ETAnubisFix)
-        if chg then config.BugFixes.ETAnubisFix = val end
+        local val, chg = ImGui.Checkbox("ET Fixes", config.BugFixes.ETFix)
+        if chg then config.BugFixes.ETFix = val end
         ImGui.TextDisabled("Fixes ET to work with Anubis by creating a third OAtk field") 
         ImGui.TextDisabled("Fixes ET to work with Supay by by doubling its OAtk firerate while active") 
     end

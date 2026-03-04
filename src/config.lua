@@ -9,34 +9,32 @@ return {
         WeaponLob        = "",
         WeaponSuit       = "",
     },
+
     ModEnabled = true,
-    DebugMode = true,
+    DebugMode = false,
 
     ArachneAndMedeaPity = true,
-
-    -- DisableCharybdis = false,
     CharybdisBehaviorAdjustment = false,
-
     PreventEchoScam = true,
-
+    SurfaceStructureFix = true,
     DisableSeleneBeforeBoon = false,
 
     BugFixes = {
         CorrosionFix = true,
         GGGFix = true,
         BraidFix = true,
+        MiniBossEncounterFix  = true,
         ExtraDoseFix = true,
         PoseidonWavesFix = true,
         SeleneFix = true,
         TidalRingFix = true,
         ShimmeringFix = true,
         StagedOmegaFix = true,
+
         ETFix = true,
-        -- ETSupayFix = true,
         SecondStageChannelingFix = true,
         OmegaCastEffectsFix = true,
         CardioTorchFix = true,
-
     },
 
 

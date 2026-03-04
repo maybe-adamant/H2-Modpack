@@ -85,30 +85,37 @@ local function DrawMainWindow()
         DrawHammerDropdown(currentWeapon, "Equipped: " .. weaponNameLabel)
     end
 
-    ImGui.Separator()
-    local val, chg = ImGui.Checkbox("Force Medea pity/Disable Arachne pity", config.ArachneAndMedeaPity)
-    if chg then config.ArachneAndMedeaPity = val end
-    ImGui.Text("Forces Medea and disables Arachne pity.")
-
-    -- ImGui.Separator()
-    -- local val, chg = ImGui.Checkbox("Disable Charybdis", config.DisableCharybdis)
-    -- if chg then config.DisableCharybdis = val end
-    -- ImGui.Text("Replace Charybdis room with the pirate miniboss (miniboss chance unchanged).")
     
-    -- ImGui.Separator()
-    local val, chg = ImGui.Checkbox("Adjust Charybdis Behavior", config.CharybdisBehaviorAdjustment)
-    if chg then config.CharybdisBehaviorAdjustment = val end
-    ImGui.Text("At phase transition, Tentacles will despawn 1s instead of 9s and Charybdis will fire 6 spits down from 8.")
+    ImGui.Separator()
+    local open = ImGui.CollapsingHeader("Biome Changes")
+    ImGui.Indent()
+    if open then
 
-    -- ImGui.Separator()
-    local val, chg = ImGui.Checkbox("Prevent Echo Scam", config.PreventEchoScam)
-    if chg then config.PreventEchoScam = val end
-    ImGui.Text("Prevents Echo scam from happening by preventing one of the mini boss from spawning at room 3")
+        local val, chg = ImGui.Checkbox("Force Medea pity/Disable Arachne pity", config.ArachneAndMedeaPity)
+        if chg then config.ArachneAndMedeaPity = val end
+        ImGui.Text("Forces Medea and disables Arachne pity.")
+        
+        local val, chg = ImGui.Checkbox("Adjust Charybdis Behavior", config.CharybdisBehaviorAdjustment)
+        if chg then config.CharybdisBehaviorAdjustment = val end
+        ImGui.Text("At phase transition, Tentacles will despawn 1s instead of 9s and Charybdis will fire 6 spits down from 8.")
 
-    -- ImGui.Separator()
-    local val, chg = ImGui.Checkbox("Disable Selene Before first boon", config.DisableSeleneBeforeBoon)
-    if chg then config.DisableSeleneBeforeBoon = val end
-    ImGui.Text("Prevents Selene from spawning before the first boon is obtained.")
+        local val, chg = ImGui.Checkbox("Prevent Echo Scam", config.PreventEchoScam)
+        if chg then config.PreventEchoScam = val end
+        ImGui.Text("Prevents Echo scam from happening by preventing one of the mini boss from spawning at room 3")
+        ImGui.Text("To balance, Fields midshop has been restored and can appear instead of Echo")
+
+        local val, chg = ImGui.Checkbox("Less Sucky Surface", config.SurfaceStructureFix)
+        if chg then config.SurfaceStructureFix = val end
+        ImGui.Text("1-Thessaly Miniboss are forced between rooms 2-4 similar to other biomes")
+        ImGui.Text("2-Olympus midshop is now forced between rooms 5-7 similar to Oceanus midshop")
+        ImGui.Text("3-Removes Boatacles")
+
+        local val, chg = ImGui.Checkbox("Disable Selene Before first boon", config.DisableSeleneBeforeBoon)
+        if chg then config.DisableSeleneBeforeBoon = val end
+        ImGui.Text("Prevents Selene from spawning before the first boon is obtained.")
+    end
+    ImGui.Unindent()
+
 
     ImGui.Separator()
 
@@ -126,6 +133,10 @@ local function DrawMainWindow()
         local val, chg = ImGui.Checkbox("Braid Fix", config.BugFixes.BraidFix)
         if chg then config.BugFixes.BraidFix = val end
         ImGui.TextDisabled("Fixes Braid of Atlas to properly buff casts ")
+
+        local val, chg = ImGui.Checkbox("Miniboss Encounter Fix", config.BugFixes.MiniBossEncounterFix)
+        if chg then config.BugFixes.MiniBossEncounterFix = val end
+        ImGui.TextDisabled("Fixes Miniboss with top screen health bars which didnt properly progress biome depth")
 
         local val, chg = ImGui.Checkbox("Aspect of Selene Fix", config.BugFixes.SeleneFix)
         if chg then config.BugFixes.SeleneFix = val end
@@ -151,15 +162,16 @@ local function DrawMainWindow()
         if chg then config.BugFixes.StagedOmegaFix = val end
         ImGui.TextDisabled("Fixes Some Omega Moves like Axe OAtk and Blade OSpec not benefiting from channeling bonus") 
 
-        local val, chg = ImGui.Checkbox("ET Fixes", config.BugFixes.ETFix)
-        if chg then config.BugFixes.ETFix = val end
-        ImGui.TextDisabled("Fixes ET to work with Anubis by creating a third OAtk field") 
-        ImGui.TextDisabled("Fixes ET to work with Supay by by doubling its OAtk firerate while active") 
     end
     ImGui.Unindent()    
     local open = ImGui.CollapsingHeader("More Bug fixes")
     ImGui.Indent()
     if open then  
+        local val, chg = ImGui.Checkbox("ET Fixes", config.BugFixes.ETFix)
+        if chg then config.BugFixes.ETFix = val end
+        ImGui.TextDisabled("Fixes ET to work with Anubis by creating a third OAtk field") 
+        ImGui.TextDisabled("Fixes multiple Anubis O Atk looking at different distance depending on casting angle")
+
         local val, chg = ImGui.Checkbox("Second Stage Channeling Fix", config.BugFixes.SecondStageChannelingFix)
         if chg then config.BugFixes.SecondStageChannelingFix = val end
         ImGui.TextDisabled("Removes the second stage channel of glorious disaster and Giga moonburst and bakes the bonus into the first stage")

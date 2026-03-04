@@ -95,13 +95,17 @@ local function DrawMainWindow()
     -- if chg then config.DisableCharybdis = val end
     -- ImGui.Text("Replace Charybdis room with the pirate miniboss (miniboss chance unchanged).")
     
-    ImGui.Separator()
+    -- ImGui.Separator()
     local val, chg = ImGui.Checkbox("Adjust Charybdis Behavior", config.CharybdisBehaviorAdjustment)
     if chg then config.CharybdisBehaviorAdjustment = val end
     ImGui.Text("At phase transition, Tentacles will despawn 1s instead of 9s and Charybdis will fire 6 spits down from 8.")
 
+    -- ImGui.Separator()
+    local val, chg = ImGui.Checkbox("Prevent Echo Scam", config.PreventEchoScam)
+    if chg then config.PreventEchoScam = val end
+    ImGui.Text("Prevents Echo scam from happening by preventing one of the mini boss from spawning at room 3")
 
-    ImGui.Separator()
+    -- ImGui.Separator()
     local val, chg = ImGui.Checkbox("Disable Selene Before first boon", config.DisableSeleneBeforeBoon)
     if chg then config.DisableSeleneBeforeBoon = val end
     ImGui.Text("Prevents Selene from spawning before the first boon is obtained.")

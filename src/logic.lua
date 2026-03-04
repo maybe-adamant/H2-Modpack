@@ -135,8 +135,25 @@ if config.CharybdisBehaviorAdjustment then
             break
         end
     end
-    WeaponSetData.CharybdisSpit3.AIData.FireTicks = 6
+    WeaponData.CharybdisSpit3.AIData.FireTicks = 6
+    WeaponDataEnemies.CharybdisSpit3.AIData.FireTicks = 6
+    -- WeaponSetData.CharybdisSpit3.AIData.FireTicks = 6
     
+end
+
+if config.PreventEchoScam then
+    local targetRoom = (math.random(1, 2) == 1) and "H_MiniBoss01" or "H_MiniBoss02"
+    if RoomData and RoomData[targetRoom] and RoomData[targetRoom].GameStateRequirements then
+        local newReq = {
+            Path = { "CurrentRun", "BiomeDepthCache" },
+            IsNone = { 3 },
+        }
+        
+        local reqs = RoomData[targetRoom].GameStateRequirements
+        if not ListContainsEquivalent(reqs, newReq) then
+            table.insert(reqs, newReq)
+        end
+    end
 end
 
 if config.DisableSeleneBeforeBoon then

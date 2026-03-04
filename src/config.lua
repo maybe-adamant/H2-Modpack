@@ -17,6 +17,8 @@ return {
     -- DisableCharybdis = false,
     CharybdisBehaviorAdjustment = false,
 
+    PreventEchoScam = true,
+
     DisableSeleneBeforeBoon = false,
 
     BugFixes = {

@@ -5,7 +5,7 @@ schemaVersion = "0.0.1"
 [package]
 namespace = "adamant"
 name = "Modpack"
-versionNumber = "1.0.1"
+versionNumber = "1.0.2"
 description = "Select your first hammer and various bug fixes/options."
 websiteUrl = "https://github.com/maybe-adamant/H2-Modpack"
 containsNsfwContent = false

@@ -3,16 +3,16 @@
 ## [Unreleased]
 
 ## [1.0.3] - 2026-03-04
--Adding echo scam fix (experimental)
--Fix Charybdis behavior adjustment caused mod to crash
--General Surface adjustments
+Adding echo scam fix (experimental)
+Fix Charybdis behavior adjustment caused mod to crash
+General Surface adjustments
 ## [1.0.2] - 2026-03-03
--Adding echo scam fix (experimental)
--Fix Charybdis behavior adjustment caused mod to crash 
+Adding echo scam fix (experimental)
+Fix Charybdis behavior adjustment caused mod to crash 
 ## [1.0.1] - 2026-03-03
--remove experimental code that made it to release
+remove experimental code that made it to release
 ## [1.0.0] - 2026-03-03
-- Initial release
+Initial release
 
 <!-- Versions -->
 

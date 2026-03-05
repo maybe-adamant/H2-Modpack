@@ -6,17 +6,20 @@ Design philosphy is keep the game vanilla but remove some frustrating design cho
 
 ## Features & Gameplay Adjustments
 
+* **RTA Mode:** Disables all combat pausing encounters for RTA runs 
 * **Starting Hammer Selection:** Allows the player to select a specific hammer for their equipped weapon via the in-game UI. The chosen hammer is guaranteed on the first hammer drop. If the selected hammer is ineligible due to weapon aspects or other conditions, the game defaults to vanilla random generation.
-* **Medea Pity:** Forces the Medea pity mechanic to reduce death resetting for pity.
+* **Medea Pity:** Forces Medea to spawn to reduce death resetting for pity.
+* **Arachne Pity:** Forces Arachne to spawn to reduce death resetting for pity.
+* **Disable Arachne Pity:** Disable Arachne pity completely for Anyfear runs
 * **Charybdis Behavior Adjustment:** Modifies the Charybdis mini boss fight phase transition. Tentacles despawn for 1 second instead of 9 seconds, and spit attacks during transition are reduced from 8 to 6.
-* **Echo scam gone:** You will no longer get Echo scammed. Mod will now prevent one of the minibosses at random from spawning at room 3 in the field and thus ensuring that Echo always appear. However, to balance it, I've restored the chance for the shop to appear. Now it is a 75/25 chance for echo/shop room respectively.
+* **Echo scam gone:** You will no longer get Echo scammed. Mod will now prevent one of the minibosses at random from spawning at room 3 in the field and thus ensuring that Echo always appear.
 * **Less Sucky Surface:** Three adjustments to the Surface:  
 1-Thessaly minibosses are forced to appear between rooms 2 and 4 (consistent with other biomes).  
 2-the Olympus mid-shop is forced to appear between rooms 5 and 7 (consistent with the Oceanus mid-shop).  
 3-Hercales cannot spawn on Thessaly anymore.
 * **Disable Selene Before First Boon:** Prevents Selene's Gift from spawning until the player has acquired at least one core Olympian boon or a hammer.
 
-## Bug Fixes
+## Bug Fixes And Adjustment
 
 * **Corrosion Fix:** Prevents Corrosion on Sight effect from unintentionally drawing aggression from enemies on Thessaly boats.
 * **GGG Echo Fix:** Adjusts requirements to allow the GGG Echo boon to be offered if the player ever equiped Jpom or Eris Keepsake..

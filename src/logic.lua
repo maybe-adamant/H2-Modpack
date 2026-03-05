@@ -85,7 +85,6 @@ local function ListContainsEquivalent(list, template)
     return false
 end
 
--- Dupe-safe array insertion
 function Utils.SafeArrayInsert(targetTable, arrayKey, value)
     if not targetTable then return end
     targetTable[arrayKey] = targetTable[arrayKey] or {}
@@ -98,19 +97,19 @@ end
 function Utils.SafeArrayRemove(targetTable, arrayKey, valuesToRemove)
     if not targetTable or not targetTable[arrayKey] then return end
     
-    -- Ensure valuesToRemove is a table so we can check multiple things at once
+    local lookup = {}
     if type(valuesToRemove) ~= "table" then
-        valuesToRemove = { valuesToRemove }
+        lookup[valuesToRemove] = true
+    else
+        for _, v in ipairs(valuesToRemove) do
+            lookup[v] = true -- This naturally handles duplicates in valuesToRemove
+        end
     end
 
     local array = targetTable[arrayKey]
-    
     for i = #array, 1, -1 do
-        for _, targetValue in ipairs(valuesToRemove) do
-            if array[i] == targetValue then
-                table.remove(array, i)
-                break -- Move to the next index in the array once we delete this one
-            end
+        if lookup[array[i]] then
+            table.remove(array, i)
         end
     end
 end
@@ -132,12 +131,40 @@ end
 -- MOD LOGIC
 -- =============================================================================
 if config.ModEnabled then
-   
-    if config.ArachneAndMedeaPity then
+    if config.RTAMode then
+        --Erebus
+        Utils.SafeArrayRemove(EncounterSets, "FEncountersDefault", { "ArtemisCombatF", "ArtemisCombatF2", "NemesisCombatF" })
+        --Oceanus
+        Utils.SafeArrayRemove(EncounterSets, "GEncountersDefault", { "ArtemisCombatG", "ArtemisCombatG2", "NemesisCombatG" })
+        --Tartarus
+        Utils.SafeArrayRemove(EncounterSets, "IEncountersDefault", { "NemesisCombatI"})
+
+        --Ephyra
+        Utils.SafeArrayRemove(EncounterSets, "NEncountersDefault", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        Utils.SafeArrayRemove(EncounterSets, "NEncountersSmaller", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        Utils.SafeArrayRemove(EncounterSets, "NEncountersBigger", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        --Thessaly
+        Utils.SafeArrayRemove(EncounterSets, "OEncountersDefault", { "IcarusCombatO", "IcarusCombatO2" })
+        Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
+        --Olympus
+        Utils.SafeArrayRemove(EncounterSets, "PEncountersDefault", { "AthenaCombatP", "AthenaCombatP02", "IcarusCombatP" })
+        Utils.SafeArrayRemove(EncounterSets, "PEncountersIntros", { "HeraclesCombatP", "HeraclesCombatO2" })
+
+    end
+    if config.MedeaPity then
         -- RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
 
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
+    end
+
+    if config.ArachnePity then
+        RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 4
+        RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
+    end
+
+    if config.DisableArachnePity then
+        RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
     end
 
     if config.CharybdisBehaviorAdjustment then
@@ -150,7 +177,6 @@ if config.ModEnabled then
         end
         WeaponData.CharybdisSpit3.AIData.FireTicks = 6
         WeaponDataEnemies.CharybdisSpit3.AIData.FireTicks = 6
-        -- WeaponSetData.CharybdisSpit3.AIData.FireTicks = 6
         
     end
 
@@ -168,15 +194,15 @@ if config.ModEnabled then
                 table.insert(reqs, newReq)
             end
         end
-        if RoomData and RoomData.H_Bridge01 and RoomData.H_Bridge01.ForcedRewards then
-            for _, forcedReward in ipairs( RoomData.H_Bridge01.ForcedRewards ) do
-                if forcedReward.Name == "Story" then 
-                    forcedReward.GameStateRequirements = forcedReward.GameStateRequirements or {}
-                    forcedReward.GameStateRequirements.ChanceToPlay = 0.75
-                    break
-                end
-            end    
-        end
+        -- if RoomData and RoomData.H_Bridge01 and RoomData.H_Bridge01.ForcedRewards then
+        --     for _, forcedReward in ipairs( RoomData.H_Bridge01.ForcedRewards ) do
+        --         if forcedReward.Name == "Story" then 
+        --             forcedReward.GameStateRequirements = forcedReward.GameStateRequirements or {}
+        --             forcedReward.GameStateRequirements.ChanceToPlay = 0.92
+        --             break
+        --         end
+        --     end    
+        -- end
     end
 
     if config.SurfaceStructureFix then

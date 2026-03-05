@@ -13,10 +13,14 @@ return {
     ModEnabled = true,
     DebugMode = false,
 
-    ArachneAndMedeaPity = true,
+    RTAMode = false,
+
+    MedeaPity = false,
+    ArachnePity = false,
+    DisableArachnePity = false,
     CharybdisBehaviorAdjustment = false,
-    PreventEchoScam = true,
-    SurfaceStructureFix = true,
+    PreventEchoScam = false,
+    SurfaceStructureFix = false,
     DisableSeleneBeforeBoon = false,
 
     BugFixes = {

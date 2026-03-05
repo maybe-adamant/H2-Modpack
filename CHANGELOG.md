@@ -27,5 +27,3 @@ Initial release
 [1.0.2]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/maybe-adamant/H2-Modpack/releases/tag/1.0.0
-
-

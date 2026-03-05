@@ -4,6 +4,8 @@
 
 ## [1.0.6] - 2026-03-05
 
+## [1.0.6] - 2026-03-05
+
 Removed Field Mid shop chance. Now Echo is 100%  
 Adding RTA support by disabling all combat pausing encounters
 
@@ -34,6 +36,7 @@ Initial release
 <!-- Versions -->
 
 [unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...HEAD
+[1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...1.0.6
 [1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.4...1.0.5
 [1.0.4]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.2...1.0.4

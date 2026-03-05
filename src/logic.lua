@@ -136,8 +136,11 @@ if config.ModEnabled then
         Utils.SafeArrayRemove(EncounterSets, "FEncountersDefault", { "ArtemisCombatF", "ArtemisCombatF2", "NemesisCombatF" })
         --Oceanus
         Utils.SafeArrayRemove(EncounterSets, "GEncountersDefault", { "ArtemisCombatG", "ArtemisCombatG2", "NemesisCombatG" })
+        --Fields
+        Utils.SafeArrayRemove(EncounterSets, "HEncountersDefault", { "NemesisCombatH" })
         --Tartarus
         Utils.SafeArrayRemove(EncounterSets, "IEncountersDefault", { "NemesisCombatI"})
+        Utils.SafeArrayRemove(EncounterSets, "IEncountersSmaller", { "NemesisCombatI"})
 
         --Ephyra
         Utils.SafeArrayRemove(EncounterSets, "NEncountersDefault", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})

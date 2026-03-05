@@ -2,7 +2,8 @@
 
 ## [Unreleased]
 
-## [1.0.6] - 2026-03-05
+## [1.0.7] - 2026-03-05
+Fixing RTA Mode missing two encounter sets
 
 ## [1.0.6] - 2026-03-05
 
@@ -35,7 +36,8 @@ Initial release
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.7...HEAD
+[1.0.7]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...1.0.6
 [1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.5...1.0.6
 [1.0.5]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.4...1.0.5

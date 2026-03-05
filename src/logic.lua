@@ -208,7 +208,7 @@ if config.ModEnabled then
                 end
             end)
         end
-        
+
         -- Remove Boatacles from Surface
         Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
     end
@@ -359,42 +359,6 @@ if config.ModEnabled then
             return baseFunc(weaponData, args, triggerArgs)
         end
 
-        --[[
-        local weaponName = "WeaponStaffSwing5"
-        local projectileName = "ProjectileStaffWall"
-        local derivedValues = GetDerivedPropertyChangeValues({
-            ProjectileName = projectileName,
-            WeaponName = weaponName,
-            Type = "Projectile",
-        })
-
-        local angle = GetAngle({ Id = CurrentRun.Hero.ObjectId })
-        local offset = CalcOffset( math.rad(angle), args.Distance )
-        
-        local angleRad = math.rad(angle)
-        local outerX = 520 * math.cos(angleRad)
-        local outerY = 520 * math.sin(angleRad)
-        local baseGap = 520 - args.Distance
-        local isoScale = 0.7 
-        local gapX = baseGap * math.cos(angleRad)
-        local gapY = baseGap * math.sin(angleRad) * isoScale
-        local offsetX = outerX - gapX
-        local offsetY = outerY - gapY
-
-        local projectileId = CreateProjectileFromUnit({ 
-            WeaponName = weaponName, 
-            Name = projectileName,
-            OffsetX = offsetX,
-            OffsetY = offsetY * isoScale,
-            Angle = angle,
-            Id = CurrentRun.Hero.ObjectId, 
-            DestinationId = MapState.FamiliarLocationId, 
-            FireFromTarget = true, 
-            DataProperties = derivedValues.PropertyChanges, 
-            ThingProperties = derivedValues.ThingPropertyChanges, 
-            ExcludeFromCap = true,
-        })
-        --]]
         local weaponName = "WeaponStaffSwing5"
         local projectileName = "ProjectileStaffWall"
         local derivedValues = GetDerivedPropertyChangeValues({
@@ -436,8 +400,6 @@ if config.ModEnabled then
             ThingProperties = derivedValues.ThingPropertyChanges, 
             ExcludeFromCap = true 
         })      
-        
-        
     end)
 
     if config.BugFixes.ETFix then
@@ -674,6 +636,50 @@ if config.ModEnabled then
         end)
     end
 
+    if config.BugFixes.FamiliarDelayFix then
+        local familiarLinkEvent = 
+        {
+            Threaded = true,
+            FunctionName = "FamiliarSetup",
+            Args = {},   -- no WaitForInput, no Wait
+            GameStateRequirements = {
+                { PathTrue = { "GameState", "EquippedFamiliar" } },
+            },
+        }
+
+        RoomEventData.GlobalRoomStartEvents = RoomEventData.GlobalRoomStartEvents or {}
+        if not ListContainsEquivalent(RoomEventData.GlobalRoomStartEvents, familiarLinkEvent) then
+            table.insert(RoomEventData.GlobalRoomStartEvents, familiarLinkEvent)
+        end    
+        local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
+        if unblocked then
+            for i = #unblocked, 1, -1 do
+                if type(unblocked[i]) == "table" and unblocked[i].FunctionName == "FamiliarSetup" then
+                    table.remove(unblocked, i)
+                end
+            end
+        end
+    end
+
+    modutil.mod.Path.Wrap("CheckSpawnCurseDamage", function(baseFunc, enemy, traitArgs)
+        if not config.ModEnabled or not config.BugFixes.SufferingFix then
+            return baseFunc(enemy, traitArgs)
+        end
+
+        if enemy.IsBoss or enemy.UseBossHealthBar or enemy.IgnoreCurseDamage or enemy.AlwaysTraitor then
+            return
+        end
+        local damageAmount = 0
+        for _, data in ipairs(traitArgs.DamageArgs) do
+            if not data.Chance or RandomChance(data.Chance * GetTotalHeroTraitValue( "LuckMultiplier", { IsMultiplier = true })) then
+                damageAmount = RandomInt( data.MinDamage, data.MaxDamage )
+                break
+            end
+        end
+        thread( DoCurseDamage, enemy, traitArgs, damageAmount, true )
+    end)
+
+    
     SetupRunData()
 end
 -- =============================================================================

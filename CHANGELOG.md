@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+## [1.0.4]
+Adding Familiar delay fix
+Adding Suffering on Sight Fix
 ## [1.0.3] - 2026-03-04
 Adding echo scam fix (experimental)
 Fix Charybdis behavior adjustment caused mod to crash
@@ -16,7 +19,8 @@ Initial release
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.3...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.4...HEAD
+[1.0.4]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.0...1.0.1

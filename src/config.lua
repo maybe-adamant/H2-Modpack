@@ -35,6 +35,8 @@ return {
         SecondStageChannelingFix = true,
         OmegaCastEffectsFix = true,
         CardioTorchFix = true,
+        FamiliarDelayFix = true,
+        SufferingFix = true,
     },
 
 

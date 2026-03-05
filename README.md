@@ -30,3 +30,6 @@ Design philosphy is keep the game vanilla but remove some frustrating design cho
 * **Stacking Anubis OAtk Adjustment:** Attempted to fix how multiple Anubis OAtk fields are placed in general to make them look more consistent when placed horizontally and vertically.
 * **Second Stage Channeling Fix:** Removes the secondary channeling requirement for Glorious Disaster and Giga Moonburst, baking the mana cost and damage bonuses directly into the primary stage charge. No localization changes yet (might update it later)
 * **Cardio Torch Fix:** Cardio gain now works properly on all Torch specials (It triggers multiple times on non hidden aspect Torches and it triggers properly on Supay).
+* **Familiar Spawn Delay Fix:** Familiar now spawn right away as soon as you enter a room allowing Gale to block hits right away and maybe buffing Toula (might revert if that's the case)
+* **Suffering on Sight Fix:** Suffering on Sight damage now bypasses wards similar to how Corrosion on Sight works.
+

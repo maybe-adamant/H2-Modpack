@@ -161,6 +161,7 @@ local function DrawMainWindow()
         local val, chg = ImGui.Checkbox("Staged Omega Fix", config.BugFixes.StagedOmegaFix)
         if chg then config.BugFixes.StagedOmegaFix = val end
         ImGui.TextDisabled("Fixes Some Omega Moves like Axe OAtk and Blade OSpec not benefiting from channeling bonus") 
+        
 
     end
     ImGui.Unindent()    
@@ -183,6 +184,14 @@ local function DrawMainWindow()
         local val, chg = ImGui.Checkbox("Cardio Torch Fix", config.BugFixes.CardioTorchFix)
         if chg then config.BugFixes.CardioTorchFix = val end
         ImGui.TextDisabled("Fixes Cardio Gain interactions with Torch specials")
+
+        local val, chg = ImGui.Checkbox("Familiar Delay Fix", config.BugFixes.FamiliarDelayFix)
+        if chg then config.BugFixes.FamiliarDelayFix = val end
+        ImGui.TextDisabled("Makes Familiars being summoned after a delay when you enter a room")
+
+        local val, chg = ImGui.Checkbox("Suffering Fix", config.BugFixes.SufferingFix)
+        if chg then config.BugFixes.SufferingFix = val end
+        ImGui.TextDisabled("Fixes Suffering on Sight not bypassing Wards vow when dealing its damage")
 
     end
     ImGui.Unindent()

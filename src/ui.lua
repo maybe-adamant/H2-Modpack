@@ -91,9 +91,9 @@ local function DrawMainWindow()
     ImGui.Indent()
     if open then
 
-        local val, chg = ImGui.Checkbox("Force Medea pity/Disable Arachne pity", config.ArachneAndMedeaPity)
+        local val, chg = ImGui.Checkbox("Force Medea pity", config.ArachneAndMedeaPity)
         if chg then config.ArachneAndMedeaPity = val end
-        ImGui.Text("Forces Medea and disables Arachne pity.")
+        ImGui.Text("Forces Medea Pity to be always active to reduce death pity reset")
         
         local val, chg = ImGui.Checkbox("Adjust Charybdis Behavior", config.CharybdisBehaviorAdjustment)
         if chg then config.CharybdisBehaviorAdjustment = val end
@@ -187,7 +187,7 @@ local function DrawMainWindow()
 
         local val, chg = ImGui.Checkbox("Familiar Delay Fix", config.BugFixes.FamiliarDelayFix)
         if chg then config.BugFixes.FamiliarDelayFix = val end
-        ImGui.TextDisabled("Makes Familiars being summoned after a delay when you enter a room")
+        ImGui.TextDisabled("Fixes Familiars being summoned after a delay when you enter a room")
 
         local val, chg = ImGui.Checkbox("Suffering Fix", config.BugFixes.SufferingFix)
         if chg then config.BugFixes.SufferingFix = val end

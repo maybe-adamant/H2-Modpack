@@ -134,7 +134,7 @@ end
 if config.ModEnabled then
    
     if config.ArachneAndMedeaPity then
-        RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
+        -- RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
 
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
@@ -172,7 +172,7 @@ if config.ModEnabled then
             for _, forcedReward in ipairs( RoomData.H_Bridge01.ForcedRewards ) do
                 if forcedReward.Name == "Story" then 
                     forcedReward.GameStateRequirements = forcedReward.GameStateRequirements or {}
-                    forcedReward.GameStateRequirements.ChanceToPlay = 0.5
+                    forcedReward.GameStateRequirements.ChanceToPlay = 0.75
                     break
                 end
             end    

@@ -1,7 +1,45 @@
 -- local modutil = rom.mods['SGG_Modding-ModUtil']
-local Utils = adamant_RunDirector
+local Utils = adamant_Modpack
 
 local hasForcedHammerThisRun = false
+
+-- =============================================================================
+-- BACKUP SYSTEM
+-- =============================================================================
+-- AddToBackup(tableRef, key1, key2, ...) captures each key's current value the
+-- first time it is called for that (tableRef, key) pair. Subsequent calls are
+-- no-ops, so the original vanilla value is always preserved.
+-- Table values are deep-copied automatically.
+local NIL = {}  -- sentinel: distinguishes "saved as nil" from "not yet registered"
+local savedValues = {}
+
+local function AddToBackup(tableRef, ...)
+    savedValues[tableRef] = savedValues[tableRef] or {}
+    local saved = savedValues[tableRef]
+    for _, key in ipairs({...}) do
+        if saved[key] == nil then
+            local value = tableRef[key]
+            saved[key] = (value == nil) and NIL or (type(value) == "table" and DeepCopyTable(value) or value)
+        end
+    end
+end
+
+local function RestoreBackups()
+    for tableRef, keys in pairs(savedValues) do
+        for key, value in pairs(keys) do
+            if value == NIL then
+                tableRef[key] = nil
+            elseif type(value) == "table" then
+                tableRef[key] = DeepCopyTable(value)
+            else
+                tableRef[key] = value
+            end
+        end
+    end
+end
+
+-- local function AddToBackup(tableRef, ...) end
+-- local function RestoreBackups() end
 
 -- =============================================================================
 -- SHARED DATA ARRAYS
@@ -32,7 +70,7 @@ Utils.weaponLabels = {
     WeaponStaffSwing = "Staff",
     WeaponDagger     = "Blades",
     WeaponAxe        = "Axe",
-    WeaponTorch      = "Flames",
+    WeaponTorch      = "Torch",
     WeaponLob        = "Skull",
     WeaponSuit       = "Coat"
 }
@@ -41,6 +79,66 @@ Utils.weaponDrawOrder = {
     "WeaponStaffSwing", "WeaponDagger", "WeaponAxe", 
     "WeaponTorch", "WeaponLob", "WeaponSuit"
 }
+
+Utils.aspectLabels = {
+    BaseStaffAspect             = "Mel Staff",
+    StaffClearCastAspect        = "Circe",
+    StaffSelfHitAspect          = "Momus",
+    StaffRaiseDeadAspect        = "Anubis",
+
+    DaggerBackstabAspect        = "Mel Blades",
+    DaggerHomingThrowAspect     = "Pan",
+    DaggerBlockAspect           = "Artemis",
+    DaggerTripleAspect          = "The Morrigan",
+
+    LobAmmoBoostAspect          = "Mel Skull",
+    LobCloseAttackAspect        = "Medea",
+    LobImpulseAspect            = "Persephone",
+    LobGunAspect                = "Hel",
+
+    AxeRecoveryAspect           = "Mel Axe",
+    AxeArmCastAspect            = "Charon",
+    AxePerfectCriticalAspect    = "Thanatos",
+    AxeRallyAspect              = "Nergal",
+
+    TorchSpecialDurationAspect  = "Mel Torch",
+    TorchSprintRecallAspect     = "Eos",
+    TorchDetonateAspect         = "Moros",
+    TorchAutofireAspect         = "Supay",
+
+    BaseSuitAspect              = "Mel Coat",
+    SuitMarkCritAspect          = "Nyx",
+    SuitHexAspect               = "Selene",
+    SuitComboAspect             = "Shiva",
+}
+
+Utils.WeaponAspectMapping = {
+    WeaponStaffSwing = { "BaseStaffAspect", "StaffClearCastAspect", "StaffSelfHitAspect", "StaffRaiseDeadAspect" },
+    WeaponDagger     = { "DaggerBackstabAspect", "DaggerHomingThrowAspect", "DaggerBlockAspect", "DaggerTripleAspect" },
+    WeaponAxe        = { "AxeRecoveryAspect", "AxeArmCastAspect", "AxePerfectCriticalAspect", "AxeRallyAspect" },
+    WeaponTorch      = { "TorchSpecialDurationAspect", "TorchSprintRecallAspect", "TorchDetonateAspect", "TorchAutofireAspect" },
+    WeaponLob        = { "LobAmmoBoostAspect", "LobCloseAttackAspect", "LobImpulseAspect", "LobGunAspect" },
+    WeaponSuit       = { "BaseSuitAspect", "SuitMarkCritAspect", "SuitHexAspect", "SuitComboAspect" }
+}
+
+for weaponName, aspects in pairs(Utils.WeaponAspectMapping) do
+    local baseWeaponData = Utils.hammerData[weaponName]
+    
+    for _, aspectName in ipairs(aspects) do
+        Utils.hammerData[aspectName] = baseWeaponData
+    end
+end
+
+Utils.aspectDrawOrder = {}
+for _, weaponName in ipairs(Utils.weaponDrawOrder) do
+    local aspects = Utils.WeaponAspectMapping[weaponName]
+    
+    if aspects then
+        for _, aspectName in ipairs(aspects) do
+            table.insert(Utils.aspectDrawOrder, aspectName)
+        end
+    end
+end
 
 -- =============================================================================
 -- HELPER FUNCTIONS
@@ -55,6 +153,26 @@ function Utils.GetEquippedWeapon()
     end
     return "WeaponStaffSwing"
 end
+function Utils.GetEquippedAspect()
+    local currentWeapon = Utils.GetEquippedWeapon()
+
+    local possibleAspects = Utils.WeaponAspectMapping[currentWeapon]
+
+    -- Safety check in case the weapon isn't in our mapping table
+    if not possibleAspects then return "BaseStaffAspect" end
+
+    -- 3. Loop strictly through those 4 aspects
+    for _, aspectName in ipairs(possibleAspects) do
+        if HeroHasTrait(aspectName) then
+            return aspectName
+        end
+    end
+
+    -- 4. Fallback: Return the base aspect for that specific weapon if none are equipped yet
+    return possibleAspects[1] 
+end
+
+
 
 local function DeepCompare(a, b)
     if a == b then return true end
@@ -127,639 +245,7 @@ function Utils.ApplyRoomChanges(roomName, changeCallback)
     end
 end
 
--- =============================================================================
--- MOD LOGIC
--- =============================================================================
-if config.ModEnabled then
-    --[[
-    if config.RTAMode then
-        --Erebus
-        -- Utils.SafeArrayRemove(EncounterSets, "FEncountersDefault", { "ArtemisCombatF", "ArtemisCombatF2", "NemesisCombatF" })
-        -- --Oceanus
-        -- Utils.SafeArrayRemove(EncounterSets, "GEncountersDefault", { "ArtemisCombatG", "ArtemisCombatG2", "NemesisCombatG" })
-        -- --Fields
-        -- Utils.SafeArrayRemove(EncounterSets, "HEncountersDefault", { "NemesisCombatH" })
-        -- --Tartarus
-        -- Utils.SafeArrayRemove(EncounterSets, "IEncountersDefault", { "NemesisCombatI"})
-        -- Utils.SafeArrayRemove(EncounterSets, "IEncountersSmaller", { "NemesisCombatI"})
 
-        -- --Ephyra
-        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersDefault", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersSmaller", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersBigger", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        -- --Thessaly
-        -- Utils.SafeArrayRemove(EncounterSets, "OEncountersDefault", { "IcarusCombatO", "IcarusCombatO2" })
-        -- Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
-        -- --Olympus
-        -- Utils.SafeArrayRemove(EncounterSets, "PEncountersDefault", { "AthenaCombatP", "AthenaCombatP02", "IcarusCombatP" })
-        -- Utils.SafeArrayRemove(EncounterSets, "PEncountersIntros", { "HeraclesCombatP", "HeraclesCombatO2" })
-    end
-    --]]
-
-    modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, args)
-        if not config.ModEnabled then
-            return baseFunc(currentRun, room, args)
-        end
-        local bannedEnc = nil
-        if config.RTAMode then
-            bannedEnc = {
-                ArtemisCombatF = true, ArtemisCombatF2 = true, NemesisCombatF = true,      -- Erebus
-                ArtemisCombatG = true, ArtemisCombatG2 = true, NemesisCombatG = true,      -- Oceanus
-                NemesisCombatH = true,                                                      -- Fields
-                NemesisCombatI = true,                                                      -- Tartarus
-                ArtemisCombatN = true, ArtemisCombatN2 = true,                             -- Ephyra
-                HeraclesCombatN = true, HeraclesCombatN2 = true,                           -- Ephyra
-                IcarusCombatO = true, IcarusCombatO2 = true,                               -- Thessaly
-                HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
-                AthenaCombatP = true, AthenaCombatP02 = true, IcarusCombatP = true,        -- Olympus
-                HeraclesCombatP = true,                                                     -- Olympus
-            }
-        end
-        if config.SurfaceStructureFix and bannedEnc == nil then            
-            bannedEnc = {
-                HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
-            }
-        end
-        if bannedEnc == nil then
-            return baseFunc(currentRun, room, args)
-        end
-
-        args = args or {}
-        local source = args.LegalEncounters or room.LegalEncounters
-        if source then
-            local filtered = {}
-            for _, enc in pairs(source) do
-                if not bannedEnc[enc] then
-                    table.insert(filtered, enc)
-                end
-            end
-            args.LegalEncounters = filtered
-        end
-
-        return baseFunc(currentRun, room, args)
-
-    end)
-    if config.MedeaPity then
-        -- RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
-
-        RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
-        RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
-    end
-
-    if config.ArachnePity then
-        RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 4
-        RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
-    end
-
-    if config.DisableArachnePity then
-        RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
-    end
-
-    if config.CharybdisBehaviorAdjustment then
-        -- UnitSetData.Charybdis.CharybdisTentacle.AIStages[3].WaitDuration = 1.0
-        for _, stage in ipairs(UnitSetData.Charybdis.CharybdisTentacle.AIStages) do
-            if stage.FireWeapon == "CharybdisTentacleBurrow" and (stage.WaitDuration and stage.WaitDuration > 5.0) then
-                stage.WaitDuration = 1.0 
-                break
-            end
-        end
-        WeaponData.CharybdisSpit3.AIData.FireTicks = 6
-        WeaponDataEnemies.CharybdisSpit3.AIData.FireTicks = 6
-        
-    end
-
-    if config.PreventEchoScam then
-        local targetRoom = (math.random(1, 2) == 1) and "H_MiniBoss01" or "H_MiniBoss02"
-        if RoomData and RoomData[targetRoom] and RoomData[targetRoom].GameStateRequirements then
-            local newReq = {
-                Path = { "CurrentRun", "BiomeDepthCache" },
-                Comparison = "!=",
-                Value = 3,
-            }
-            
-            local reqs = RoomData[targetRoom].GameStateRequirements
-            if not ListContainsEquivalent(reqs, newReq) then
-                table.insert(reqs, newReq)
-            end
-        end
-        -- if RoomData and RoomData.H_Bridge01 and RoomData.H_Bridge01.ForcedRewards then
-        --     for _, forcedReward in ipairs( RoomData.H_Bridge01.ForcedRewards ) do
-        --         if forcedReward.Name == "Story" then 
-        --             forcedReward.GameStateRequirements = forcedReward.GameStateRequirements or {}
-        --             forcedReward.GameStateRequirements.ChanceToPlay = 0.92
-        --             break
-        --         end
-        --     end    
-        -- end
-    end
-
-    if config.SurfaceStructureFix then
-        --Olympus midshop
-        RoomSetData.P.P_Shop01.ForceAtBiomeDepthMin = 5
-        RoomSetData.P.P_Shop01.ForceAtBiomeDepthMax = 7
-
-        --Thessaly Minibosses
-        RoomSetData.O.O_MiniBoss01.ForceAtBiomeDepthMin = 2
-        RoomSetData.O.O_MiniBoss01.ForceAtBiomeDepthMax = 4
-        
-        RoomSetData.O.O_MiniBoss02.ForceAtBiomeDepthMin = 2
-        RoomSetData.O.O_MiniBoss02.ForceAtBiomeDepthMax = 4
-
-        local miniBossRooms = { "O_MiniBoss01", "O_MiniBoss02" }
-
-        for _, roomName in ipairs(miniBossRooms) do
-            Utils.ApplyRoomChanges(roomName, function(room)
-                if not room.GameStateRequirements then return end
-                
-                for _, req in ipairs(room.GameStateRequirements) do
-                    if req.Path and req.Path[2] == "BiomeDepthCache" then
-                        if req.Comparison == ">=" and req.Value == 3 then
-                            req.Value = 2
-                        elseif req.Comparison == "<=" and req.Value == 5 then
-                            req.Value = 4
-                        end
-                    end
-                end
-            end)
-        end
-    end
-
-    if config.DisableSeleneBeforeBoon then
-        local additionalSpellReq = {
-            Path = {"CurrentRun", "LootTypeHistory"},
-            CountOf = {
-                "AphroditeUpgrade", "ApolloUpgrade", "DemeterUpgrade",
-                "HephaestusUpgrade", "HestiaUpgrade", "HeraUpgrade",
-                "PoseidonUpgrade", "ZeusUpgrade", "AresUpgrade", "WeaponUpgrade"
-            },
-            Comparison = ">=",
-            Value = 1
-        }
-        
-        if NamedRequirementsData and NamedRequirementsData.SpellDropRequirements then
-            local targetReqs = NamedRequirementsData.SpellDropRequirements
-            if not ListContainsEquivalent(targetReqs, additionalSpellReq) then
-                table.insert(targetReqs, additionalSpellReq)
-            end
-        end
-    end
-
-    -- =============================================================================
-    -- BUG FIXES
-    -- =============================================================================
-    if config.BugFixes.CorrosionFix then
-        Utils.ApplyTraitChanges("ArmorPenaltyCurse", function(trait)
-            if trait.OnEnemySpawnFunction then
-                trait.OnEnemySpawnFunction.Args.SkipOnDamagedPowers = true
-            end
-        end) 
-    end
-
-    if config.BugFixes.GGGFix then
-        Utils.ApplyTraitChanges("EchoRepeatKeepsakeBoon", function(trait)
-            local reqs = trait.GameStateRequirements
-            if reqs then
-                for _, req in ipairs(reqs) do
-                    if req.Path and req.Path[3] == "TraitDictionary" and req.HasNone then
-                        req.HasNone = { "AthenaEncounterKeepsake", "FountainRarityKeepsake" }
-                        break
-                    end
-                end
-                
-                local newReq = {
-                    Path = { "CurrentRun", "Hero", "SlottedTraits", "Keepsake" },
-                    IsNone = { "HadesAndPersephoneKeepsake", "EscalatingKeepsake" }
-                }
-                if not ListContainsEquivalent(reqs, newReq) then
-                    table.insert(reqs, newReq)
-                end
-            end
-        end)
-    end
-
-    if config.BugFixes.BraidFix then
-        Utils.ApplyTraitChanges("TemporaryImprovedCastTrait", function(trait)
-            if trait.AddOutgoingDamageModifiers then
-                trait.AddOutgoingDamageModifiers.ValidProjectiles = WeaponSets.CastProjectileNames
-                trait.AddOutgoingDamageModifiers.WeaponOrProjectileRequirement = true
-            end
-        end)
-    end
-
-    if config.BugFixes.MiniBossEncounterFix then
-        EncounterData.MiniBossBoar.CountsForRoomEncounterDepth = true
-        EncounterData.MiniBossCharybdis.CountsForRoomEncounterDepth = true
-        EncounterData.MiniBossTalos.CountsForRoomEncounterDepth = true
-        EncounterData.BossTyphonEye01.CountsForRoomEncounterDepth = true
-        EncounterData.BossTyphonArm01.CountsForRoomEncounterDepth = true
-    end
-
-    if config.BugFixes.ExtraDoseFix then
-        Utils.ApplyTraitChanges("DoubleStrikeChanceBoon", function(trait)
-            if trait.PropertyChanges then
-                if trait.PropertyChanges[1] then
-                    Utils.SafeArrayInsert(trait.PropertyChanges[1], "WeaponNames", "WeaponSuit2")
-                    Utils.SafeArrayInsert(trait.PropertyChanges[1], "WeaponNames", "WeaponSuitDash")
-                end
-                if trait.PropertyChanges[4] then
-                    Utils.SafeArrayInsert(trait.PropertyChanges[4], "WeaponNames", "WeaponSuit2")
-                    Utils.SafeArrayInsert(trait.PropertyChanges[4], "WeaponNames", "WeaponSuitDash")
-                end
-            end
-        end)
-    end
-
-    if config.BugFixes.PoseidonWavesFix then
-        Utils.ApplyTraitChanges("PoseidonSpecialBoon", function(trait)
-            if trait.OnEnemyDamagedAction and trait.OnEnemyDamagedAction.Args then
-                local args = trait.OnEnemyDamagedAction.Args
-                if args.MultihitProjectileWhitelist and args.MultihitProjectileConditions then
-                    Utils.SafeArrayInsert(args, "MultihitProjectileWhitelist", "ProjectileAxeSpecial")
-                    args.MultihitProjectileConditions.ProjectileAxeSpecial = { Count = 4, Window = 0.3 }
-                    args.MultihitProjectileConditions.ProjectileTorchOrbit = args.MultihitProjectileConditions.ProjectileTorchOrbit or {}
-                    args.MultihitProjectileConditions.ProjectileTorchOrbit.Count = 4
-                end
-            end
-        end)
-    end
-
-    if config.BugFixes.TidalRingFix then
-        if ProjectileData and ProjectileData.PoseidonCastSplashSplinter then
-            ProjectileData.PoseidonCastSplashSplinter.ImmunityDuration = 0
-        end
-    end
-
-    if config.BugFixes.SeleneFix then
-        if NamedRequirementsData and NamedRequirementsData.SpellDropRequirements then
-            local spellLegal = NamedRequirementsData.SpellDropRequirements
-            local newReq = {
-                PathFalse = { "CurrentRun", "Hero", "TraitDictionary", "SuitHexAspect" }
-            }
-            if not ListContainsEquivalent(spellLegal, newReq) then
-                table.insert(spellLegal, newReq)
-            end
-        end
-    end
-
-    if config.BugFixes.ShimmeringFix then
-        Utils.ApplyTraitChanges("StaffJumpSpecialTrait", function(trait)
-            if trait.AddOutgoingDamageModifiers then
-                trait.AddOutgoingDamageModifiers.ProjectileName = nil
-                trait.AddOutgoingDamageModifiers.ValidProjectiles = { "ProjectileStaffBall", "ProjectileStaffBallCharged" }
-            end
-            if trait.PropertyChanges then
-                for _, propertyChange in ipairs( trait.PropertyChanges ) do
-                    if propertyChange.WeaponName == "WeaponStaffBall" then
-                        propertyChange.ProjectileNames = { "ProjectileStaffBall", "ProjectileStaffBallCharged" }
-                    end
-                end
-            end
-        end)
-    end
-
-    if config.BugFixes.StagedOmegaFix then
-        WeaponData.WeaponDaggerThrow.MinWeaponChargeTime = 0.05
-        -- WeaponData.WeaponDaggerThrow.RushOverride = nil
-
-        WeaponData.WeaponAxeSpin.MinWeaponChargeTime = 0.05
-    end
-
-    modutil.mod.Path.Wrap("CreateSecondAnubisWall", function( baseFunc, weaponData, args, triggerArgs )
-        
-        if not config.ModEnabled or not config.BugFixes.ETFix then
-            return baseFunc(weaponData, args, triggerArgs)
-        end
-
-        local weaponName = "WeaponStaffSwing5"
-        local projectileName = "ProjectileStaffWall"
-        local derivedValues = GetDerivedPropertyChangeValues({
-            ProjectileName = projectileName,
-            WeaponName = weaponName,
-            Type = "Projectile",
-        })
-        
-        local angle = GetAngle({ Id = CurrentRun.Hero.ObjectId })
-        local radAngle = math.rad(angle)
-        
-        local baseDistance = 520
-        local gapDistance = args.Distance-520
-        local isoRatio = 0.7 
-        
-        local baseX = math.cos(radAngle) * baseDistance
-        local baseY = -math.sin(radAngle) * baseDistance * isoRatio
-        
-        local gapX = math.cos(radAngle) * gapDistance
-        local gapY = -math.sin(radAngle) * gapDistance
-        
-        local fixedOffsetX = baseX + gapX
-        local fixedOffsetY = baseY + gapY
-
-        local projectileId = CreateProjectileFromUnit({ 
-            WeaponName = weaponName, 
-            Name = projectileName,
-            OffsetX = fixedOffsetX,
-            OffsetY = fixedOffsetY,
-            Angle = angle,
-            Id = CurrentRun.Hero.ObjectId, 
-            DestinationId = MapState.FamiliarLocationId, 
-            FireFromTarget = true, 
-            DataProperties = derivedValues.PropertyChanges, 
-            ThingProperties = derivedValues.ThingPropertyChanges, 
-            ExcludeFromCap = true 
-        })      
-    end)
-
-    if config.BugFixes.ETFix then
-        Utils.ApplyTraitChanges("DoubleExManaBoon", function(trait)
-            if trait.PropertyChanges then
-                for _, propertyChange in ipairs(trait.PropertyChanges) do
-                    if propertyChange.FalseTraitNames then
-                        local isTargetBlock = false
-                        for _, traitName in ipairs(propertyChange.FalseTraitNames) do
-                            if traitName == "StaffOneWayAttackTrait" then
-                                isTargetBlock = true
-                                break
-                            end
-                        end
-                        if isTargetBlock then
-                            Utils.SafeArrayInsert(propertyChange, "FalseTraitNames", "StaffRaiseDeadAspect")
-                            break 
-                        end
-                    end
-                end
-            end
-
-            trait.OnWeaponFiredFunctions = 
-            {
-                ValidWeapons = { "WeaponStaffSwing5" },
-                FunctionName = "CreateSecondAnubisWall",
-                FunctionArgs = { Distance = 340 },
-                ExcludeLinked = true,
-            }
-            -- trait.AutofireOmegaSpeedMultiplier = 
-            -- { 
-            --     BaseValue = 0.5, 
-            --     SourceIsMultiplier = true 
-            -- }
-        end)
-    end
-
-    local function ReplaceGigaMoonburst()
-        OverwriteTableKeys( TraitData, {
-            StaffSecondStageTrait = 
-            {
-                InheritFrom = { "WeaponTrait", "StaffHammerTrait" },
-                Icon = "Hammer_Staff_37",
-                GameStateRequirements =
-                {
-                    {
-                        Path = { "CurrentRun", "Hero", "Weapons", },
-                        HasAll = { "WeaponStaffSwing", },
-                    },
-                },
-                RarityLevels =
-                {
-                    Common =
-                    {
-                        Multiplier = 1.0,
-                    },
-                    Legendary = 
-                    {
-                        Multiplier = 1.333,
-                    },
-                },
-                ManaCostModifiers = 
-                {
-                    WeaponNames = {"WeaponStaffBall"},
-                    ExcludeLinked = true,
-                    ExWeapons = true,
-                    ManaCostAdd = 30,
-                    ReportValues = { ReportedManaCost = "ManaCostAdd" }
-                },
-
-                AddOutgoingDamageModifiers =
-                {
-                    ValidProjectiles = { "ProjectileStaffBallCharged" },
-                    ValidWeaponMultiplier =
-                    {
-                        BaseValue = 4.0,
-                        SourceIsMultiplier = true,
-                    },
-                    ReportValues = { ReportedWeaponMultiplier = "ValidWeaponMultiplier"},
-                },
-
-                PropertyChanges =
-                {
-                    {
-                        WeaponName = "WeaponStaffBall",
-                        ProjectileName = "ProjectileStaffBallCharged",
-                        ProjectileProperties = 
-                        {
-                            DamageRadius = 550,
-                            BlastSpeed = 2500,
-                        },
-                    },
-                },  
-
-                ExtractValues =
-                {
-                    {
-                        Key = "ReportedManaCost",
-                        ExtractAs = "ManaCost",
-                    },
-                    {
-                        Key = "ReportedWeaponMultiplier",
-                        ExtractAs = "DamageIncrease",
-                        Format = "PercentDelta",
-                    },
-                }
-            }
-        })
-
-    end
-
-    local function PatchGloriousDisaster()
-        -- Ensure TraitData and the target Boon exist before modifying to prevent crashes
-        if TraitData == nil or TraitData.ApolloSecondStageCastBoon == nil then
-            return
-        end
-
-        local extraManaCost = 30
-        local baseWait = 0.8
-        local baseCost = 15
-
-        -- Set the display values and requirements
-        TraitData.ApolloSecondStageCastBoon.ReportedDifference = extraManaCost
-        TraitData.ApolloSecondStageCastBoon.WeaponDataOverrideTraitRequirement = "ApolloExCastBoon"
-
-        -- Clear out the vanilla ChargeStageModifiers so they don't conflict with our overrides
-        TraitData.ApolloSecondStageCastBoon.ChargeStageModifiers = nil
-
-        -- Targeted Overwrite: Map out all Cast variants explicitly
-        TraitData.ApolloSecondStageCastBoon.WeaponDataOverride = 
-        {
-            WeaponCastArm = {
-                ManaCost = 0,
-                OnChargeFunctionNames = { "DoWeaponCharge" },
-                ChargeWeaponData = {
-                    OnStageReachedFunctionName = "CastChargeStage",
-                    EmptyChargeFunctionName = "EmptyCastCharge",
-                    OnNoManaForceRelease = "NoManaCastSecondStageForceRelease"
-                },
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true }
-                }
-            },
-            WeaponCast = {
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
-                }
-            },
-            WeaponCastProjectileHades = {
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
-                }
-            },
-            WeaponAnywhereCast = {
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
-                }
-            },
-            WeaponCastProjectile = {
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
-                }
-            },
-            WeaponCastLob = {
-                ChargeWeaponStages = {
-                    { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
-                    { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
-                }
-            }
-        }
-        TraitData.ApolloSecondStageCastBoon.PropertyChanges = TraitData.ApolloSecondStageCastBoon.PropertyChanges or {}
-        local propertyList = TraitData.ApolloSecondStageCastBoon.PropertyChanges
-
-        local forceRelease = {
-            TraitName = "ApolloExCastBoon",
-            WeaponName = "WeaponCastArm",
-            WeaponProperty = "ForceMaxChargeRelease",
-            ChangeValue = false,
-        }
-
-        local chargeTime = {
-            TraitName = "ApolloExCastBoon",
-            WeaponName = "WeaponCastArm",
-            WeaponProperty = "ChargeTime",
-            ChangeValue = baseWait, 
-        }
-
-        if not ListContainsEquivalent(propertyList, forceRelease) then
-            table.insert(propertyList, forceRelease)
-        end
-
-        if not ListContainsEquivalent(propertyList, chargeTime) then
-            table.insert(propertyList, chargeTime)
-        end
-    end
-
-    modutil.mod.Path.Wrap("CheckAxeCastArm", function(baseFunc, triggerArgs, args)
-        if config.ModEnabled and config.BugFixes.SecondStageChannelingFix then
-            if HeroHasTrait("ApolloExCastBoon") and HeroHasTrait("ApolloSecondStageCastBoon") then
-                SessionMapState.SuperchargeCast = true
-            end
-        end
-        baseFunc(triggerArgs, args)
-
-
-    end)
-
-    if config.BugFixes.SecondStageChannelingFix then
-        PatchGloriousDisaster()
-        ReplaceGigaMoonburst()
-    end
-
-    if config.BugFixes.OmegaCastEffectsFix then
-        local missingCastProjectiles = 
-        {
-            "ApolloCastRapid",
-            "AresProjectile",
-            "ZeusApolloSynergyStrike",
-            "DemeterCastStorm",
-            "AthenaCastProjectile"
-        }
-
-        for _, projectileName in ipairs(missingCastProjectiles) do
-            Utils.SafeArrayInsert(WeaponSets, "CastProjectileNames", projectileName)
-        end
-    end
-
-    if config.BugFixes.CardioTorchFix then
-        Utils.ApplyTraitChanges("HestiaManaBoon", function(trait)
-            if trait.OnEnemyDamagedAction and trait.OnEnemyDamagedAction.Args then
-                local args = trait.OnEnemyDamagedAction.Args
-
-                -- 2. Safely add the Torch Special to the multihit whitelist using your helper
-                Utils.SafeArrayInsert(args, "MultihitProjectileWhitelist", "ProjectileTorchOrbit")
-
-                -- 3. Define the exact internal cooldown condition
-                args.MultihitProjectileConditions = args.MultihitProjectileConditions or {}
-                args.MultihitProjectileConditions["ProjectileTorchOrbit"] = { Cooldown = 0.01 } 
-            end
-        end)
-    end
-
-    if config.BugFixes.FamiliarDelayFix then
-        local familiarLinkEvent = 
-        {
-            Threaded = true,
-            FunctionName = "FamiliarSetup",
-            Args = {},   -- no WaitForInput, no Wait
-            GameStateRequirements = {
-                { PathTrue = { "GameState", "EquippedFamiliar" } },
-            },
-        }
-
-        RoomEventData.GlobalRoomStartEvents = RoomEventData.GlobalRoomStartEvents or {}
-        if not ListContainsEquivalent(RoomEventData.GlobalRoomStartEvents, familiarLinkEvent) then
-            table.insert(RoomEventData.GlobalRoomStartEvents, familiarLinkEvent)
-        end    
-        local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
-        if unblocked then
-            for i = #unblocked, 1, -1 do
-                if type(unblocked[i]) == "table" and unblocked[i].FunctionName == "FamiliarSetup" then
-                    table.remove(unblocked, i)
-                end
-            end
-        end
-    end
-
-    modutil.mod.Path.Wrap("CheckSpawnCurseDamage", function(baseFunc, enemy, traitArgs)
-        if not config.ModEnabled or not config.BugFixes.SufferingFix then
-            return baseFunc(enemy, traitArgs)
-        end
-
-        if enemy.IsBoss or enemy.UseBossHealthBar or enemy.IgnoreCurseDamage or enemy.AlwaysTraitor then
-            return
-        end
-        local damageAmount = 0
-        for _, data in ipairs(traitArgs.DamageArgs) do
-            if not data.Chance or RandomChance(data.Chance * GetTotalHeroTraitValue( "LuckMultiplier", { IsMultiplier = true })) then
-                damageAmount = RandomInt( data.MinDamage, data.MaxDamage )
-                break
-            end
-        end
-        thread( DoCurseDamage, enemy, traitArgs, damageAmount, true )
-    end)
-
-    
-    SetupRunData()
-end
 -- =============================================================================
 -- MOD ENGINE HOOKS
 -- =============================================================================
@@ -805,7 +291,7 @@ modutil.mod.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
 
     if config.ModEnabled and lootData.Name == "WeaponUpgrade" and not hasForcedHammerThisRun then
         
-        local currentWeapon = Utils.GetEquippedWeapon()
+        local currentWeapon = Utils.GetEquippedAspect()
         local desiredHammer = config.FirstHammers[currentWeapon]
 
         if desiredHammer and desiredHammer ~= "" then
@@ -824,34 +310,614 @@ modutil.mod.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
                 end
             end
             
-            -- Lock out the mod for the rest of the run so future hammers are natural
             hasForcedHammerThisRun = true
+
         end
     end
 end)
 
---Removing Poseiidon Waves from interacting with cardio gain
--- modutil.mod.Path.Wrap("CheckManaOnHit", function(baseFunc, victim, functionArgs, triggerArgs)
---     if not config.BugFixes.CardioTorchFix then
---         return baseFunc(victim, functionArgs, triggerArgs)
---     end
---     if functionArgs.IsNotEx and IsExWeapon( triggerArgs.SourceWeapon, {Combat = true}, triggerArgs ) then
--- 		return
--- 	end	
--- 	local validWeapons = ConcatTableValues( ShallowCopyTable(functionArgs.ValidWeapons), AddLinkedWeapons( functionArgs.ValidWeapons))
--- 	local passesHitCheck = functionArgs.FirstHitOnly == nil or (functionArgs.FirstHitOnly and not ProjectileHasUnitHit( triggerArgs.ProjectileId, "ManaOnHit" ))
-	
--- 	if triggerArgs.SourceProjectile ~= nil and functionArgs.MultihitProjectileWhitelistLookup and functionArgs.MultihitProjectileWhitelistLookup[triggerArgs.SourceProjectile] and functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile] then
--- 		local conditions = functionArgs.MultihitProjectileConditions[triggerArgs.SourceProjectile]
--- 		passesHitCheck = true
--- 		if conditions.Cooldown then
--- 			passesHitCheck = false
--- 		end
--- 	end
--- 	if Contains( validWeapons, triggerArgs.SourceWeapon ) and passesHitCheck then
--- 		ProjectileRecordUnitHit( triggerArgs.ProjectileId, "ManaOnHit")
--- 		ManaDelta(functionArgs.ManaGain)
--- 	end
+modutil.mod.Path.Wrap("AddTraitToHero", function(baseFunc, args)
+    args = args or {}
+    local traitName =  args.TraitData and args.TraitData.Name
+    if not config.ModEnabled or not traitName then
+        return baseFunc(args)
+    end
+    local currentWeapon = Utils.GetEquippedAspect()
+    local desiredHammer = config.FirstHammers[currentWeapon]
 
--- end)
+    if desiredHammer == traitName then
+        if config.DebugMode then
+            print("AddTraitToHero: Granting guaranteed first hammer -> " .. tostring(traitName))
+        end
 
+        -- Lock out the mod for the rest of the run so future hammers are natural
+        hasForcedHammerThisRun = true
+    end
+
+    return baseFunc(args)
+end)
+
+--Wrap to handle RTA Mode and Surface Structure Fix by filtering out ineligible encounters from the spawn pool at the point of selection, ensuring all other systems that rely on LegalEncounters lists continue to function properly.
+modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, args)
+    if not config.ModEnabled then
+        return baseFunc(currentRun, room, args)
+    end
+    local bannedEnc = nil
+    if config.RTAMode then
+        bannedEnc = {
+            ArtemisCombatF = true, ArtemisCombatF2 = true, NemesisCombatF = true,      -- Erebus
+            ArtemisCombatG = true, ArtemisCombatG2 = true, NemesisCombatG = true,      -- Oceanus
+            NemesisCombatH = true,                                                      -- Fields
+            NemesisCombatI = true,                                                      -- Tartarus
+            ArtemisCombatN = true, ArtemisCombatN2 = true,                             -- Ephyra
+            HeraclesCombatN = true, HeraclesCombatN2 = true,                           -- Ephyra
+            IcarusCombatO = true, IcarusCombatO2 = true,                               -- Thessaly
+            HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
+            AthenaCombatP = true, AthenaCombatP02 = true, IcarusCombatP = true,        -- Olympus
+            HeraclesCombatP = true,                                                     -- Olympus
+        }
+    end
+    if config.SurfaceStructureFix and bannedEnc == nil then            
+        bannedEnc = {
+            HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
+        }
+    end
+    if bannedEnc == nil then
+        return baseFunc(currentRun, room, args)
+    end
+
+    args = args or {}
+    local source = args.LegalEncounters or room.LegalEncounters
+    if source then
+        local filtered = {}
+        for _, enc in pairs(source) do
+            if not bannedEnc[enc] then
+                table.insert(filtered, enc)
+            end
+        end
+        args.LegalEncounters = filtered
+    end
+
+    return baseFunc(currentRun, room, args)
+
+end)
+
+--Wrap to handle Anubis OAtk positioning when multiple fields are summoned
+modutil.mod.Path.Wrap("CreateSecondAnubisWall", function( baseFunc, weaponData, args, triggerArgs )
+    
+    if not config.ModEnabled or not config.BugFixes.ETFix then
+        return baseFunc(weaponData, args, triggerArgs)
+    end
+
+    local weaponName = "WeaponStaffSwing5"
+    local projectileName = "ProjectileStaffWall"
+    local derivedValues = GetDerivedPropertyChangeValues({
+        ProjectileName = projectileName,
+        WeaponName = weaponName,
+        Type = "Projectile",
+    })
+    
+    local angle = GetAngle({ Id = CurrentRun.Hero.ObjectId })
+    local radAngle = math.rad(angle)
+    
+    local baseDistance = 520
+    local gapDistance = args.Distance-520
+    local isoRatio = 0.7 
+    
+    local baseX = math.cos(radAngle) * baseDistance
+    local baseY = -math.sin(radAngle) * baseDistance * isoRatio
+    
+    local gapX = math.cos(radAngle) * gapDistance
+    local gapY = -math.sin(radAngle) * gapDistance
+    
+    local fixedOffsetX = baseX + gapX
+    local fixedOffsetY = baseY + gapY
+
+    local projectileId = CreateProjectileFromUnit({ 
+        WeaponName = weaponName, 
+        Name = projectileName,
+        OffsetX = fixedOffsetX,
+        OffsetY = fixedOffsetY,
+        Angle = angle,
+        Id = CurrentRun.Hero.ObjectId, 
+        DestinationId = MapState.FamiliarLocationId, 
+        FireFromTarget = true, 
+        DataProperties = derivedValues.PropertyChanges, 
+        ThingProperties = derivedValues.ThingPropertyChanges, 
+        ExcludeFromCap = true 
+    })      
+end)
+
+--Wrap to make Aspect of Charon triggers Glorious Disaster
+modutil.mod.Path.Wrap("CheckAxeCastArm", function(baseFunc, triggerArgs, args)
+    if config.ModEnabled and config.BugFixes.SecondStageChannelingFix then
+        if HeroHasTrait("ApolloExCastBoon") and HeroHasTrait("ApolloSecondStageCastBoon") then
+            SessionMapState.SuperchargeCast = true
+        end
+    end
+    baseFunc(triggerArgs, args)
+
+
+end)
+
+--Wrap to make Suffering on Sight bypass Vow of Wards
+modutil.mod.Path.Wrap("CheckSpawnCurseDamage", function(baseFunc, enemy, traitArgs)
+    if not config.ModEnabled or not config.BugFixes.SufferingFix then
+        return baseFunc(enemy, traitArgs)
+    end
+
+    if enemy.IsBoss or enemy.UseBossHealthBar or enemy.IgnoreCurseDamage or enemy.AlwaysTraitor then
+        return
+    end
+    local damageAmount = 0
+    for _, data in ipairs(traitArgs.DamageArgs) do
+        if not data.Chance or RandomChance(data.Chance * GetTotalHeroTraitValue( "LuckMultiplier", { IsMultiplier = true })) then
+            damageAmount = RandomInt( data.MinDamage, data.MaxDamage )
+            break
+        end
+    end
+    thread( DoCurseDamage, enemy, traitArgs, damageAmount, true )
+end)
+
+local function ReplaceGigaMoonburst()
+    OverwriteTableKeys( TraitData, {
+        StaffSecondStageTrait = 
+        {
+            InheritFrom = { "WeaponTrait", "StaffHammerTrait" },
+            Icon = "Hammer_Staff_37",
+            GameStateRequirements =
+            {
+                {
+                    Path = { "CurrentRun", "Hero", "Weapons", },
+                    HasAll = { "WeaponStaffSwing", },
+                },
+            },
+            RarityLevels =
+            {
+                Common =
+                {
+                    Multiplier = 1.0,
+                },
+                Legendary = 
+                {
+                    Multiplier = 1.333,
+                },
+            },
+            ManaCostModifiers = 
+            {
+                WeaponNames = {"WeaponStaffBall"},
+                ExcludeLinked = true,
+                ExWeapons = true,
+                ManaCostAdd = 30,
+                ReportValues = { ReportedManaCost = "ManaCostAdd" }
+            },
+
+            AddOutgoingDamageModifiers =
+            {
+                ValidProjectiles = { "ProjectileStaffBallCharged" },
+                ValidWeaponMultiplier =
+                {
+                    BaseValue = 4.0,
+                    SourceIsMultiplier = true,
+                },
+                ReportValues = { ReportedWeaponMultiplier = "ValidWeaponMultiplier"},
+            },
+
+            PropertyChanges =
+            {
+                {
+                    WeaponName = "WeaponStaffBall",
+                    ProjectileName = "ProjectileStaffBallCharged",
+                    ProjectileProperties = 
+                    {
+                        DamageRadius = 550,
+                        BlastSpeed = 2500,
+                    },
+                },
+            },  
+
+            ExtractValues =
+            {
+                {
+                    Key = "ReportedManaCost",
+                    ExtractAs = "ManaCost",
+                },
+                {
+                    Key = "ReportedWeaponMultiplier",
+                    ExtractAs = "DamageIncrease",
+                    Format = "PercentDelta",
+                },
+            }
+        }
+    })
+
+end
+
+local function PatchGloriousDisaster()
+    -- Ensure TraitData and the target Boon exist before modifying to prevent crashes
+    if TraitData == nil or TraitData.ApolloSecondStageCastBoon == nil then
+        return
+    end
+
+    local extraManaCost = 30
+    local baseWait = 0.8
+    local baseCost = 15
+
+    -- Set the display values and requirements
+    TraitData.ApolloSecondStageCastBoon.ReportedDifference = extraManaCost
+    TraitData.ApolloSecondStageCastBoon.WeaponDataOverrideTraitRequirement = "ApolloExCastBoon"
+
+    -- Clear out the vanilla ChargeStageModifiers so they don't conflict with our overrides
+    TraitData.ApolloSecondStageCastBoon.ChargeStageModifiers = nil
+
+    -- Targeted Overwrite: Map out all Cast variants explicitly
+    TraitData.ApolloSecondStageCastBoon.WeaponDataOverride = 
+    {
+        WeaponCastArm = {
+            ManaCost = 0,
+            OnChargeFunctionNames = { "DoWeaponCharge" },
+            ChargeWeaponData = {
+                OnStageReachedFunctionName = "CastChargeStage",
+                EmptyChargeFunctionName = "EmptyCastCharge",
+                OnNoManaForceRelease = "NoManaCastSecondStageForceRelease"
+            },
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true }
+            }
+        },
+        WeaponCast = {
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
+            }
+        },
+        WeaponCastProjectileHades = {
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
+            }
+        },
+        WeaponAnywhereCast = {
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
+            }
+        },
+        WeaponCastProjectile = {
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
+            }
+        },
+        WeaponCastLob = {
+            ChargeWeaponStages = {
+                { ManaCost = baseCost + extraManaCost, Wait = baseWait, ChannelSlowEventOnStart = true },
+                { RequiredTraitName = "ApolloExCastBoon", ManaCost = baseCost + extraManaCost, Wait = 0, ForceRelease = true, ResetIndicator = true, SuperCharge = true }
+            }
+        }
+    }
+    TraitData.ApolloSecondStageCastBoon.PropertyChanges = TraitData.ApolloSecondStageCastBoon.PropertyChanges or {}
+    local propertyList = TraitData.ApolloSecondStageCastBoon.PropertyChanges
+
+    local forceRelease = {
+        TraitName = "ApolloExCastBoon",
+        WeaponName = "WeaponCastArm",
+        WeaponProperty = "ForceMaxChargeRelease",
+        ChangeValue = false,
+    }
+
+    local chargeTime = {
+        TraitName = "ApolloExCastBoon",
+        WeaponName = "WeaponCastArm",
+        WeaponProperty = "ChargeTime",
+        ChangeValue = baseWait, 
+    }
+
+    if not ListContainsEquivalent(propertyList, forceRelease) then
+        table.insert(propertyList, forceRelease)
+    end
+
+    if not ListContainsEquivalent(propertyList, chargeTime) then
+        table.insert(propertyList, chargeTime)
+    end
+end
+
+-- =============================================================================
+-- MOD LOGIC
+-- =============================================================================
+function Utils.ApplyConfigChanges()
+    RestoreBackups()
+
+    if config.ForceMedea then
+        AddToBackup(RoomSetData.N.N_Story01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
+        RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
+        RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
+    end
+
+    if config.ForceArachne then
+        AddToBackup(RoomSetData.F.F_Story01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
+        RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 4
+        RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
+    end
+
+    if config.DisableArachnePity then
+        AddToBackup(RoomSetData.F.F_Story01, "ForceIfUnseenForRuns")
+        RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
+    end
+
+    if config.CharybdisBehaviorAdjustment then
+        AddToBackup(UnitSetData.Charybdis.CharybdisTentacle.AIStages[3], "WaitDuration")
+        AddToBackup(WeaponData.CharybdisSpit3.AIData, "FireTicks")
+        AddToBackup(WeaponDataEnemies.CharybdisSpit3.AIData, "FireTicks")
+
+        -- for _, stage in ipairs(UnitSetData.Charybdis.CharybdisTentacle.AIStages) do
+        --     if stage.FireWeapon == "CharybdisTentacleBurrow" and (stage.WaitDuration and stage.WaitDuration > 5.0) then
+        --         stage.WaitDuration = 1.0 
+        --         break
+        --     end
+        -- end
+        UnitSetData.Charybdis.CharybdisTentacle.AIStages[3].WaitDuration = 1.0
+        WeaponData.CharybdisSpit3.AIData.FireTicks = 6
+        WeaponDataEnemies.CharybdisSpit3.AIData.FireTicks = 6
+        
+    end
+
+    if config.PreventEchoScam then
+        AddToBackup(RoomData["H_MiniBoss01"], "GameStateRequirements")
+        AddToBackup(RoomData["H_MiniBoss02"], "GameStateRequirements")
+        local targetRoom = (math.random(1, 2) == 1) and "H_MiniBoss01" or "H_MiniBoss02"
+        if RoomData and RoomData[targetRoom] and RoomData[targetRoom].GameStateRequirements then
+            local newReq = {
+                Path = { "CurrentRun", "BiomeDepthCache" },
+                Comparison = "!=",
+                Value = 3,
+            }
+            
+            local reqs = RoomData[targetRoom].GameStateRequirements
+            if not ListContainsEquivalent(reqs, newReq) then
+                table.insert(reqs, newReq)
+            end
+        end
+        -- if RoomData and RoomData.H_Bridge01 and RoomData.H_Bridge01.ForcedRewards then
+        --     for _, forcedReward in ipairs( RoomData.H_Bridge01.ForcedRewards ) do
+        --         if forcedReward.Name == "Story" then 
+        --             forcedReward.GameStateRequirements = forcedReward.GameStateRequirements or {}
+        --             forcedReward.GameStateRequirements.ChanceToPlay = 0.92
+        --             break
+        --         end
+        --     end    
+        -- end
+    end
+
+    if config.SurfaceStructureFix then
+        AddToBackup(RoomSetData.P.P_Shop01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
+        AddToBackup(RoomSetData.O.O_MiniBoss01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
+        AddToBackup(RoomSetData.O.O_MiniBoss02, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
+        AddToBackup(RoomData["O_MiniBoss01"], "GameStateRequirements")
+        AddToBackup(RoomData["O_MiniBoss02"], "GameStateRequirements")
+        --Olympus midshop
+        RoomSetData.P.P_Shop01.ForceAtBiomeDepthMin = 5
+        RoomSetData.P.P_Shop01.ForceAtBiomeDepthMax = 7
+
+        --Thessaly Minibosses
+        RoomSetData.O.O_MiniBoss01.ForceAtBiomeDepthMin = 2
+        RoomSetData.O.O_MiniBoss01.ForceAtBiomeDepthMax = 4
+        
+        RoomSetData.O.O_MiniBoss02.ForceAtBiomeDepthMin = 2
+        RoomSetData.O.O_MiniBoss02.ForceAtBiomeDepthMax = 4
+
+        local miniBossRooms = { "O_MiniBoss01", "O_MiniBoss02" }
+
+        for _, roomName in ipairs(miniBossRooms) do
+            Utils.ApplyRoomChanges(roomName, function(room)
+                if not room.GameStateRequirements then return end
+                
+                for _, req in ipairs(room.GameStateRequirements) do
+                    if req.Path and req.Path[2] == "BiomeDepthCache" then
+                        if req.Comparison == ">=" and req.Value == 3 then
+                            req.Value = 2
+                        elseif req.Comparison == "<=" and req.Value == 5 then
+                            req.Value = 4
+                        end
+                    end
+                end
+            end)
+        end
+    end
+
+    if config.DisableSeleneBeforeBoon then
+        AddToBackup(NamedRequirementsData, "SpellDropRequirements")
+        local additionalSpellReq = {
+            Path = {"CurrentRun", "LootTypeHistory"},
+            CountOf = {
+                "AphroditeUpgrade", "ApolloUpgrade", "DemeterUpgrade",
+                "HephaestusUpgrade", "HestiaUpgrade", "HeraUpgrade",
+                "PoseidonUpgrade", "ZeusUpgrade", "AresUpgrade", "WeaponUpgrade"
+            },
+            Comparison = ">=",
+            Value = 1
+        }
+        
+        if NamedRequirementsData and NamedRequirementsData.SpellDropRequirements then
+            local targetReqs = NamedRequirementsData.SpellDropRequirements
+            if not ListContainsEquivalent(targetReqs, additionalSpellReq) then
+                table.insert(targetReqs, additionalSpellReq)
+            end
+        end
+    end
+
+    -- =============================================================================
+    -- BUG FIXES
+    -- =============================================================================
+    if config.BugFixes.CorrosionFix then
+        AddToBackup(TraitData.ArmorPenaltyCurse.OnEnemySpawnFunction.Args, "SkipOnDamagedPowers")
+        Utils.ApplyTraitChanges("ArmorPenaltyCurse", function(trait)
+            trait.OnEnemySpawnFunction.Args.SkipOnDamagedPowers = true
+        end)
+    end
+
+    if config.BugFixes.GGGFix then
+        AddToBackup(TraitData.EchoRepeatKeepsakeBoon, "GameStateRequirements")
+        Utils.ApplyTraitChanges("EchoRepeatKeepsakeBoon", function(trait)
+            trait.GameStateRequirements[2].HasNone = { "AthenaEncounterKeepsake", "FountainRarityKeepsake" }
+            table.insert(trait.GameStateRequirements, {
+                Path = { "CurrentRun", "Hero", "SlottedTraits", "Keepsake" },
+                IsNone = { "HadesAndPersephoneKeepsake", "EscalatingKeepsake" }
+            })
+        end)
+    end
+
+    if config.BugFixes.BraidFix then
+        AddToBackup(TraitData.TemporaryImprovedCastTrait.AddOutgoingDamageModifiers, "ValidProjectiles", "WeaponOrProjectileRequirement")
+        Utils.ApplyTraitChanges("TemporaryImprovedCastTrait", function(trait)
+            trait.AddOutgoingDamageModifiers.ValidProjectiles = WeaponSets.CastProjectileNames
+            trait.AddOutgoingDamageModifiers.WeaponOrProjectileRequirement = true
+        end)
+    end
+
+    if config.BugFixes.MiniBossEncounterFix then
+        AddToBackup(EncounterData.MiniBossBoar,      "CountsForRoomEncounterDepth")
+        AddToBackup(EncounterData.MiniBossCharybdis, "CountsForRoomEncounterDepth")
+        AddToBackup(EncounterData.MiniBossTalos,     "CountsForRoomEncounterDepth")
+        AddToBackup(EncounterData.BossTyphonEye01,   "CountsForRoomEncounterDepth")
+        AddToBackup(EncounterData.BossTyphonArm01,   "CountsForRoomEncounterDepth")
+        EncounterData.MiniBossBoar.CountsForRoomEncounterDepth = true
+        EncounterData.MiniBossCharybdis.CountsForRoomEncounterDepth = true
+        EncounterData.MiniBossTalos.CountsForRoomEncounterDepth = true
+        EncounterData.BossTyphonEye01.CountsForRoomEncounterDepth = true
+        EncounterData.BossTyphonArm01.CountsForRoomEncounterDepth = true
+    end
+
+    if config.BugFixes.ExtraDoseFix then
+        AddToBackup(TraitData.DoubleStrikeChanceBoon, "PropertyChanges")
+        Utils.ApplyTraitChanges("DoubleStrikeChanceBoon", function(trait)
+            table.insert(trait.PropertyChanges[1].WeaponNames, "WeaponSuit2")
+            table.insert(trait.PropertyChanges[1].WeaponNames, "WeaponSuitDash")
+            table.insert(trait.PropertyChanges[4].WeaponNames, "WeaponSuit2")
+            table.insert(trait.PropertyChanges[4].WeaponNames, "WeaponSuitDash")
+        end)
+    end
+
+    if config.BugFixes.PoseidonWavesFix then
+        AddToBackup(TraitData.PoseidonSpecialBoon.OnEnemyDamagedAction.Args, "MultihitProjectileWhitelist", "MultihitProjectileConditions")
+        Utils.ApplyTraitChanges("PoseidonSpecialBoon", function(trait)
+            local args = trait.OnEnemyDamagedAction.Args
+            table.insert(args.MultihitProjectileWhitelist, "ProjectileAxeSpecial")
+            args.MultihitProjectileConditions.ProjectileAxeSpecial = { Count = 4, Window = 0.3 }
+            args.MultihitProjectileConditions.ProjectileTorchOrbit.Count = 4
+        end)
+    end
+
+    if config.BugFixes.TidalRingFix then
+        AddToBackup(ProjectileData.PoseidonCastSplashSplinter, "ImmunityDuration")
+        if ProjectileData and ProjectileData.PoseidonCastSplashSplinter then
+            ProjectileData.PoseidonCastSplashSplinter.ImmunityDuration = 0
+        end
+    end
+
+    if config.BugFixes.SeleneFix then
+        AddToBackup(NamedRequirementsData, "SpellDropRequirements")
+        table.insert(NamedRequirementsData.SpellDropRequirements, {
+            PathFalse = { "CurrentRun", "Hero", "TraitDictionary", "SuitHexAspect" }
+        })
+    end
+
+    if config.BugFixes.ShimmeringFix then
+        AddToBackup(TraitData.StaffJumpSpecialTrait.AddOutgoingDamageModifiers, "ProjectileName", "ValidProjectiles")
+        AddToBackup(TraitData.StaffJumpSpecialTrait, "PropertyChanges")
+        Utils.ApplyTraitChanges("StaffJumpSpecialTrait", function(trait)
+            trait.AddOutgoingDamageModifiers.ProjectileName = nil
+            trait.AddOutgoingDamageModifiers.ValidProjectiles = { "ProjectileStaffBall", "ProjectileStaffBallCharged" }
+            for _, propertyChange in ipairs(trait.PropertyChanges) do
+                propertyChange.ProjectileNames = { "ProjectileStaffBall", "ProjectileStaffBallCharged" }
+            end
+        end)
+    end
+
+
+    if config.BugFixes.StagedOmegaFix then
+        AddToBackup(WeaponData.WeaponDaggerThrow, "MinWeaponChargeTime")
+        AddToBackup(WeaponData.WeaponAxeSpin,     "MinWeaponChargeTime")
+        WeaponData.WeaponDaggerThrow.MinWeaponChargeTime = 0.05
+        -- WeaponData.WeaponDaggerThrow.RushOverride = nil
+
+        WeaponData.WeaponAxeSpin.MinWeaponChargeTime = 0.05
+    end
+    
+    if config.BugFixes.ETFix then
+        AddToBackup(TraitData, "DoubleExManaBoon")
+        Utils.ApplyTraitChanges("DoubleExManaBoon", function(trait)
+            for _, propertyChange in ipairs(trait.PropertyChanges or {}) do
+                if Contains(propertyChange.FalseTraitNames, "StaffOneWayAttackTrait") then
+                    Utils.SafeArrayInsert(propertyChange, "FalseTraitNames", "StaffRaiseDeadAspect")
+                    break
+                end
+            end
+
+            trait.OnWeaponFiredFunctions =
+            {
+                ValidWeapons = { "WeaponStaffSwing5" },
+                FunctionName = "CreateSecondAnubisWall",
+                FunctionArgs = { Distance = 340 },
+                ExcludeLinked = true,
+            }
+        end)
+    end
+
+    if config.BugFixes.SecondStageChannelingFix then
+        AddToBackup(TraitData, "ApolloSecondStageCastBoon")
+        AddToBackup(TraitData, "StaffSecondStageTrait")
+        PatchGloriousDisaster()
+        ReplaceGigaMoonburst()
+    end
+
+    if config.BugFixes.OmegaCastEffectsFix then
+        AddToBackup(WeaponSets, "CastProjectileNames")
+        local missingCastProjectiles =
+        {
+            "ApolloCastRapid",
+            "AresProjectile",
+            "ZeusApolloSynergyStrike",
+            "DemeterCastStorm",
+            "AthenaCastProjectile",
+        }
+        for _, projectileName in ipairs(missingCastProjectiles) do
+            table.insert(WeaponSets.CastProjectileNames, projectileName)
+        end
+    end
+
+    if config.BugFixes.CardioTorchFix then
+        AddToBackup(TraitData.HestiaManaBoon.OnEnemyDamagedAction.Args, "MultihitProjectileWhitelist", "MultihitProjectileConditions")
+        Utils.ApplyTraitChanges("HestiaManaBoon", function(trait)
+            local args = trait.OnEnemyDamagedAction.Args
+            table.insert(args.MultihitProjectileWhitelist, "ProjectileTorchOrbit")
+            args.MultihitProjectileConditions.ProjectileTorchOrbit = { Cooldown = 0.01 }
+        end)
+    end
+
+    if config.BugFixes.FamiliarDelayFix then
+        AddToBackup(RoomEventData, "GlobalRoomStartEvents")
+        AddToBackup(RoomEventData, "GlobalRoomInputUnblockedEvents")
+        table.insert(RoomEventData.GlobalRoomStartEvents, {
+            Threaded = true,
+            FunctionName = "FamiliarSetup",
+            Args = {},   -- no WaitForInput, no Wait
+            GameStateRequirements = {
+                { PathTrue = { "GameState", "EquippedFamiliar" } },
+            },
+        })
+        local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
+        for i = #unblocked, 1, -1 do
+            if unblocked[i].FunctionName == "FamiliarSetup" then
+                table.remove(unblocked, i)
+            end
+        end
+    end
+
+    SetupRunData()
+end
+
+if config.ModEnabled then
+    Utils.ApplyConfigChanges()
+end 

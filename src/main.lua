@@ -1,6 +1,6 @@
 ---@meta _
-adamant_RunDirector = adamant_RunDirector or {}
-local Utils = adamant_RunDirector
+adamant_Modpack = adamant_Modpack or {}
+local Utils = adamant_Modpack
 
 ---@diagnostic disable-next-line: undefined-global
 local mods = rom.mods

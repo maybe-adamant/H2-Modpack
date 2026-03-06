@@ -2,48 +2,53 @@
 
 ## [Unreleased]
 
+### Added
+- Hammer selection now per aspect not just per weapon
+- Overhaul of the UI for better UX
+- Adding Backup/Restore system allowing changing configuration without returning to main men (BETA)
+
+### Fixed
+- Tightened the hammer selection logic to ensure it is only reset when the player actually receives the hammer.
+
 ## [1.0.8] - 2026-03-06
 
 ### Added
-
 - Glorious Disaster now working with Aspect of Charon  
-
 ### Fixed
-
 - Fixing Encounter banning for RTA and Surface fixes  
 
 ## [1.0.7] - 2026-03-05
 
-Fixing RTA Mode missing two encounter sets
+- Fixing RTA Mode missing two encounter sets
 
 ## [1.0.6] - 2026-03-05
 
-Removed Field Mid shop chance. Now Echo is 100%  
-Adding RTA support by disabling all combat pausing encounters
+- Removed Field Mid shop chance. Now Echo is 100%  
+- Adding RTA support by disabling all combat pausing encounters
 
 ## [1.0.5] - 2026-03-05
 
-Changing Echo chance to 0.75 instead of 50/50 with the shop  
-Remove Arachne pity changes because some people use it and some people don't so no need to change it  
+- Changing Echo chance to 0.75 instead of 50/50 with the shop  
+- Remove Arachne pity changes because some people use it and some people don't so no need to change it  
 
 ## [1.0.4] - 2026-03-04
 
-Adding Familiar delay fix  
-Adding Suffering on Sight Fix  
-General Surface adjustments  
+- Adding Familiar delay fix  
+- Adding Suffering on Sight Fix  
+- General Surface adjustments  
 
 ## [1.0.2] - 2026-03-03
 
-Adding echo scam fix (experimental)  
-Fix Charybdis behavior adjustment caused mod to crash 
+- Adding echo scam fix (experimental)  
+- Fix Charybdis behavior adjustment caused mod to crash 
 
 ## [1.0.1] - 2026-03-03
 
-remove experimental code that made it to release
+- remove experimental code that made it to release
 
 ## [1.0.0] - 2026-03-03
 
-Initial release
+- Initial release
 
 <!-- Versions -->
 

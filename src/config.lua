@@ -1,28 +1,65 @@
 ---@meta adamant-config-Modpack
 return {
     
-    FirstHammers = {
-        WeaponStaffSwing = "",
-        WeaponDagger     = "",
-        WeaponAxe        = "",
-        WeaponTorch      = "",
-        WeaponLob        = "",
-        WeaponSuit       = "",
+    -- FirstHammers = {
+    --     WeaponStaffSwing = "",
+    --     WeaponDagger     = "",
+    --     WeaponAxe        = "",
+    --     WeaponTorch      = "",
+    --     WeaponLob        = "",
+    --     WeaponSuit       = "",
+    -- },
+
+    FirstHammers =
+    {
+        BaseStaffAspect             = "",
+        StaffClearCastAspect        = "",
+        StaffSelfHitAspect          = "",
+        StaffRaiseDeadAspect        = "",
+
+        DaggerBackstabAspect        = "",
+        DaggerHomingThrowAspect     = "",
+        DaggerBlockAspect           = "",
+        DaggerTripleAspect          = "",
+
+        LobAmmoBoostAspect          = "",
+        LobCloseAttackAspect        = "",
+        LobImpulseAspect            = "",
+        LobGunAspect                = "",
+
+        AxeRecoveryAspect           = "",
+        AxeArmCastAspect            = "",
+        AxePerfectCriticalAspect    = "",
+        AxeRallyAspect              = "",
+
+        TorchSpecialDurationAspect  = "",
+        TorchSprintRecallAspect     = "",
+        TorchDetonateAspect         = "",
+        TorchAutofireAspect         = "",
+
+        BaseSuitAspect              = "",
+        SuitMarkCritAspect          = "",
+        SuitHexAspect               = "",
+        SuitComboAspect             = "",
     },
+
 
     ModEnabled = true,
     DebugMode = false,
 
+    ActivePreset = "",
     RTAMode = false,
 
-    MedeaPity = false,
-    ArachnePity = false,
+    ForceMedea = false,
+    ForceArachne = false,
     DisableArachnePity = false,
     CharybdisBehaviorAdjustment = false,
     PreventEchoScam = false,
     SurfaceStructureFix = false,
     DisableSeleneBeforeBoon = false,
 
+    BugFixEnabled = true,
+    
     BugFixes = {
         CorrosionFix = true,
         GGGFix = true,

@@ -1,9 +1,15 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.8] - 2026-03-06
+
 ### Added
+
 - Glorious Disaster now working with Aspect of Charon  
+
 ### Fixed
+
 - Fixing Encounter banning for RTA and Surface fixes  
 
 ## [1.0.7] - 2026-03-05
@@ -41,7 +47,8 @@ Initial release
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.7...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.8...HEAD
+[1.0.8]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.7...1.0.8
 [1.0.7]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...1.0.7
 [1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.6...1.0.6
 [1.0.6]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.5...1.0.6

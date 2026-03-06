@@ -131,29 +131,74 @@ end
 -- MOD LOGIC
 -- =============================================================================
 if config.ModEnabled then
+    --[[
     if config.RTAMode then
         --Erebus
-        Utils.SafeArrayRemove(EncounterSets, "FEncountersDefault", { "ArtemisCombatF", "ArtemisCombatF2", "NemesisCombatF" })
-        --Oceanus
-        Utils.SafeArrayRemove(EncounterSets, "GEncountersDefault", { "ArtemisCombatG", "ArtemisCombatG2", "NemesisCombatG" })
-        --Fields
-        Utils.SafeArrayRemove(EncounterSets, "HEncountersDefault", { "NemesisCombatH" })
-        --Tartarus
-        Utils.SafeArrayRemove(EncounterSets, "IEncountersDefault", { "NemesisCombatI"})
-        Utils.SafeArrayRemove(EncounterSets, "IEncountersSmaller", { "NemesisCombatI"})
+        -- Utils.SafeArrayRemove(EncounterSets, "FEncountersDefault", { "ArtemisCombatF", "ArtemisCombatF2", "NemesisCombatF" })
+        -- --Oceanus
+        -- Utils.SafeArrayRemove(EncounterSets, "GEncountersDefault", { "ArtemisCombatG", "ArtemisCombatG2", "NemesisCombatG" })
+        -- --Fields
+        -- Utils.SafeArrayRemove(EncounterSets, "HEncountersDefault", { "NemesisCombatH" })
+        -- --Tartarus
+        -- Utils.SafeArrayRemove(EncounterSets, "IEncountersDefault", { "NemesisCombatI"})
+        -- Utils.SafeArrayRemove(EncounterSets, "IEncountersSmaller", { "NemesisCombatI"})
 
-        --Ephyra
-        Utils.SafeArrayRemove(EncounterSets, "NEncountersDefault", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        Utils.SafeArrayRemove(EncounterSets, "NEncountersSmaller", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        Utils.SafeArrayRemove(EncounterSets, "NEncountersBigger", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
-        --Thessaly
-        Utils.SafeArrayRemove(EncounterSets, "OEncountersDefault", { "IcarusCombatO", "IcarusCombatO2" })
-        Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
-        --Olympus
-        Utils.SafeArrayRemove(EncounterSets, "PEncountersDefault", { "AthenaCombatP", "AthenaCombatP02", "IcarusCombatP" })
-        Utils.SafeArrayRemove(EncounterSets, "PEncountersIntros", { "HeraclesCombatP", "HeraclesCombatO2" })
-
+        -- --Ephyra
+        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersDefault", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersSmaller", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        -- Utils.SafeArrayRemove(EncounterSets, "NEncountersBigger", { "ArtemisCombatN", "ArtemisCombatN2", "HeraclesCombatN", "HeraclesCombatN2"})
+        -- --Thessaly
+        -- Utils.SafeArrayRemove(EncounterSets, "OEncountersDefault", { "IcarusCombatO", "IcarusCombatO2" })
+        -- Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
+        -- --Olympus
+        -- Utils.SafeArrayRemove(EncounterSets, "PEncountersDefault", { "AthenaCombatP", "AthenaCombatP02", "IcarusCombatP" })
+        -- Utils.SafeArrayRemove(EncounterSets, "PEncountersIntros", { "HeraclesCombatP", "HeraclesCombatO2" })
     end
+    --]]
+
+    modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, args)
+        if not config.ModEnabled then
+            return baseFunc(currentRun, room, args)
+        end
+        local bannedEnc = nil
+        if config.RTAMode then
+            bannedEnc = {
+                ArtemisCombatF = true, ArtemisCombatF2 = true, NemesisCombatF = true,      -- Erebus
+                ArtemisCombatG = true, ArtemisCombatG2 = true, NemesisCombatG = true,      -- Oceanus
+                NemesisCombatH = true,                                                      -- Fields
+                NemesisCombatI = true,                                                      -- Tartarus
+                ArtemisCombatN = true, ArtemisCombatN2 = true,                             -- Ephyra
+                HeraclesCombatN = true, HeraclesCombatN2 = true,                           -- Ephyra
+                IcarusCombatO = true, IcarusCombatO2 = true,                               -- Thessaly
+                HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
+                AthenaCombatP = true, AthenaCombatP02 = true, IcarusCombatP = true,        -- Olympus
+                HeraclesCombatP = true,                                                     -- Olympus
+            }
+        end
+        if config.SurfaceStructureFix and bannedEnc == nil then            
+            bannedEnc = {
+                HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
+            }
+        end
+        if bannedEnc == nil then
+            return baseFunc(currentRun, room, args)
+        end
+
+        args = args or {}
+        local source = args.LegalEncounters or room.LegalEncounters
+        if source then
+            local filtered = {}
+            for _, enc in pairs(source) do
+                if not bannedEnc[enc] then
+                    table.insert(filtered, enc)
+                end
+            end
+            args.LegalEncounters = filtered
+        end
+
+        return baseFunc(currentRun, room, args)
+
+    end)
     if config.MedeaPity then
         -- RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
 
@@ -237,9 +282,6 @@ if config.ModEnabled then
                 end
             end)
         end
-
-        -- Remove Boatacles from Surface
-        Utils.SafeArrayRemove(EncounterSets, "OEncountersIntros", { "HeraclesCombatO", "HeraclesCombatO2" })
     end
 
     if config.DisableSeleneBeforeBoon then
@@ -376,10 +418,10 @@ if config.ModEnabled then
     end
 
     if config.BugFixes.StagedOmegaFix then
-        WeaponData.WeaponDaggerThrow.MinWeaponChargeTime = 0.03
+        WeaponData.WeaponDaggerThrow.MinWeaponChargeTime = 0.05
         -- WeaponData.WeaponDaggerThrow.RushOverride = nil
 
-        WeaponData.WeaponAxeSpin.MinWeaponChargeTime = 0.03
+        WeaponData.WeaponAxeSpin.MinWeaponChargeTime = 0.05
     end
 
     modutil.mod.Path.Wrap("CreateSecondAnubisWall", function( baseFunc, weaponData, args, triggerArgs )
@@ -399,20 +441,16 @@ if config.ModEnabled then
         local angle = GetAngle({ Id = CurrentRun.Hero.ObjectId })
         local radAngle = math.rad(angle)
         
-        -- Define your distances
         local baseDistance = 520
-        local gapDistance = args.Distance-520 -- You can swap this with args.Distance if needed
+        local gapDistance = args.Distance-520
         local isoRatio = 0.7 
         
-        -- 1. Base Position: Foreshortened for isometric depth
         local baseX = math.cos(radAngle) * baseDistance
         local baseY = -math.sin(radAngle) * baseDistance * isoRatio
         
-        -- 2. Gap Distance: Flat screen space so the visual gap never shrinks
         local gapX = math.cos(radAngle) * gapDistance
         local gapY = -math.sin(radAngle) * gapDistance
         
-        -- 3. Final Coordinates: Combine the base and the gap
         local fixedOffsetX = baseX + gapX
         local fixedOffsetY = baseY + gapY
 
@@ -629,6 +667,17 @@ if config.ModEnabled then
             table.insert(propertyList, chargeTime)
         end
     end
+
+    modutil.mod.Path.Wrap("CheckAxeCastArm", function(baseFunc, triggerArgs, args)
+        if config.ModEnabled and config.BugFixes.SecondStageChannelingFix then
+            if HeroHasTrait("ApolloExCastBoon") and HeroHasTrait("ApolloSecondStageCastBoon") then
+                SessionMapState.SuperchargeCast = true
+            end
+        end
+        baseFunc(triggerArgs, args)
+
+
+    end)
 
     if config.BugFixes.SecondStageChannelingFix then
         PatchGloriousDisaster()

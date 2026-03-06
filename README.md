@@ -27,14 +27,16 @@ Design philosphy is keep the game vanilla but remove some frustrating design cho
 * **Miniboss Encounter Fix:** All mini bosses with top screen health bars like Boar, Charybdis, Talos, and Typhon Eye/Arm encounters now correctly count toward room encounter depth.
 * **Extra Dose Fix:** Extra Dose now works with the Coat second punch and dash strike.
 * **Omega Cast Effects Fix:** Ensures specific Omega Cast moves (e.g., Prominence Flare, Glorious Disaster, Meat Grinder) are correctly classified as Cast damage to benefit from relevant damage modifiers.
-* **Aspect of Selene Fix:** Correctly registers the Hex upon run start making the player eligible to receive Path of Stars upgrades right away. Also Sky Fall is always at full Moonglow (+2 Path of Stars point on first pick instead of 0)
+* **Aspect of Selene Fix:** Correctly registers the Hex upon run start making the player eligible to receive Path of Stars upgrades right away. Also Sky Fall is always at full Moonglow (+2 Path of Stars point on first pick instead of 0).
 * **Poseidon Waves Fix:** Poseidon wave effects correctly trigger on the Axe special and the Hidden Helix Torch.
 * **Tidal Ring Fix:** Removes the immunity duration on Poseidon Cast Splash, allowing it to hit the same enemy multiple times with the Circe staff.
 * **Shimmering Moonshot Fix:** Applies the intended damage bonus to Omega Special projectiles.
 * **Staged Omega Fix:** Adjusts the minimum weapon charge time for Axe Omega Attack and Blade Omega Special to ensure they benefit from channeling bonuses (Furious Whirlwind and Sudden Flurry are somewhat good now)
-* **Exceptional Talent Fix:** Fixes compatibility with Anubis Omega Attack by making ET generate another field closer to the player. Stacking it with Mirrored Ankh now creates three fields. 
+* **Exceptional Talent Fix:** Fixes compatibility with Anubis Omega Attack by making ET generate another field closer to the player. Stacking it with Mirrored Ankh now creates three fields (Normal field, Far field from Mirrord Ankh, Near field from ET). 
 * **Stacking Anubis OAtk Adjustment:** Attempted to fix how multiple Anubis OAtk fields are placed in general to make them look more consistent when placed horizontally and vertically.
-* **Second Stage Channeling Fix:** Removes the secondary channeling requirement for Glorious Disaster and Giga Moonburst, baking the mana cost and damage bonuses directly into the primary stage charge. No localization changes yet (boon description remain unchanged might update it later)
+* **Second Stage Channeling Fix:** Removes the secondary channeling requirement for Glorious Disaster and Giga Moonburst, baking the mana cost and damage bonuses directly into the primary stage charge.  
+Glorious Disaster also now works similar to other OCast expiring boons (for example Charon triggers it)  
+No localization changes yet (boon description remain unchanged might update it later)
 * **Cardio Torch Fix:** Cardio gain now works properly on all Torch specials (It triggers multiple times on non hidden aspect Torches and it triggers properly on Supay).
 * **Familiar Spawn Delay Fix:** Familiar now spawn as soon as you enter a room allowing Gale to block hits right away and maybe buffing Toula (might revert if that's the case)
 * **Suffering on Sight Fix:** Suffering on Sight damage now bypasses wards similar to how Corrosion on Sight works.

@@ -41,104 +41,7 @@ end
 -- local function AddToBackup(tableRef, ...) end
 -- local function RestoreBackups() end
 
--- =============================================================================
--- SHARED DATA ARRAYS
--- =============================================================================
-
-Utils.hammerData = {
-    WeaponStaffSwing = { 
-        values = { "", "StaffDoubleAttackTrait", "StaffLongAttackTrait", "StaffDashAttackTrait", "StaffTripleShotTrait", "StaffJumpSpecialTrait", "StaffExAoETrait", "StaffAttackRecoveryTrait", "StaffFastSpecialTrait", "StaffExHealTrait", "StaffSecondStageTrait", "StaffPowershotTrait", "StaffOneWayAttackTrait", "StaffRaiseDeadBigTrait", "StaffRaiseDeadDoubleTrait", "StaffLoneShadeRespawnTrait", "StaffLoneShadeRallyTrait" } 
-    },
-    WeaponDagger = { 
-        values = { "", "DaggerBlinkAoETrait", "DaggerSpecialJumpTrait", "DaggerSpecialLineTrait", "DaggerRapidAttackTrait", "DaggerSpecialConsecutiveTrait", "DaggerBackstabTrait", "DaggerSpecialReturnTrait", "DaggerSpecialFanTrait", "DaggerAttackFinisherTrait", "DaggerFinalHitTrait", "DaggerChargeStageSkipTrait", "DaggerDashAttackTripleTrait", "DaggerTripleBuffTrait", "DaggerTripleRepeatWomboTrait", "DaggerTripleHomingSpecialTrait" } 
-    },
-    WeaponAxe = { 
-        values = { "", "AxeSpinSpeedTrait", "AxeChargedSpecialTrait", "AxeAttackRecoveryTrait", "AxeMassiveThirdStrikeTrait", "AxeThirdStrikeTrait", "AxeRangedWhirlwindTrait", "AxeFreeSpinTrait", "AxeArmorTrait", "AxeBlockEmpowerTrait", "AxeSecondStageTrait", "AxeDashAttackTrait", "AxeSturdyTrait", "AxeRallyFrenzyTrait", "AxeRallyFirstStrikeTrait" } 
-    },
-    WeaponTorch = { 
-        values = { "", "TorchExSpecialCountTrait", "TorchSpecialSpeedTrait", "TorchAttackSpeedTrait", "TorchSpecialLineTrait", "TorchSpecialImpactTrait", "TorchMoveSpeedTrait", "TorchSplitAttackTrait", "TorchEnhancedAttackTrait", "TorchDiscountExAttackTrait", "TorchLongevityTrait", "TorchOrbitPointTrait", "TorchSpinAttackTrait", "TorchAutofireSprintTrait" } 
-    },
-    WeaponLob = { 
-        values = { "", "LobAmmoTrait", "LobAmmoMagnetismTrait", "LobRushArmorTrait", "LobSpreadShotTrait", "LobSpecialSpeedTrait", "LobSturdySpecialTrait", "LobOneSideTrait", "LobInOutSpecialExTrait", "LobStraightShotTrait", "LobPulseAmmoTrait", "LobPulseAmmoCollectTrait", "LobGrowthTrait", "LobGunOverheatTrait", "LobGunBounceTrait", "LobGunSpecialBounceTrait", "LobGunAttackRangeTrait", "LobGunAttackDoublerTrait" } 
-    },
-    WeaponSuit = { 
-        values = { "", "SuitArmorTrait", "SuitAttackSpeedTrait", "SuitAttackSizeTrait", "SuitAttackRangeTrait", "SuitFullChargeTrait", "SuitDashAttackTrait", "SuitSpecialJumpTrait", "SuitSpecialStartUpTrait", "SuitSpecialAutoTrait", "SuitSpecialBlockTrait", "SuitSpecialDiscountTrait", "SuitSpecialConsecutiveHitTrait", "SuitComboForwardRocketTrait", "SuitComboBlockBuffTrait", "SuitComboDoubleSpecialTrait", "SuitComboDashAttackTrait", "SuitPowershotTrait" } 
-    },
-}
-
-Utils.weaponLabels = {
-    WeaponStaffSwing = "Staff",
-    WeaponDagger     = "Blades",
-    WeaponAxe        = "Axe",
-    WeaponTorch      = "Torch",
-    WeaponLob        = "Skull",
-    WeaponSuit       = "Coat"
-}
-
-Utils.weaponDrawOrder = {
-    "WeaponStaffSwing", "WeaponDagger", "WeaponAxe", 
-    "WeaponTorch", "WeaponLob", "WeaponSuit"
-}
-
-Utils.aspectLabels = {
-    BaseStaffAspect             = "Mel Staff",
-    StaffClearCastAspect        = "Circe",
-    StaffSelfHitAspect          = "Momus",
-    StaffRaiseDeadAspect        = "Anubis",
-
-    DaggerBackstabAspect        = "Mel Blades",
-    DaggerHomingThrowAspect     = "Pan",
-    DaggerBlockAspect           = "Artemis",
-    DaggerTripleAspect          = "The Morrigan",
-
-    LobAmmoBoostAspect          = "Mel Skull",
-    LobCloseAttackAspect        = "Medea",
-    LobImpulseAspect            = "Persephone",
-    LobGunAspect                = "Hel",
-
-    AxeRecoveryAspect           = "Mel Axe",
-    AxeArmCastAspect            = "Charon",
-    AxePerfectCriticalAspect    = "Thanatos",
-    AxeRallyAspect              = "Nergal",
-
-    TorchSpecialDurationAspect  = "Mel Torch",
-    TorchSprintRecallAspect     = "Eos",
-    TorchDetonateAspect         = "Moros",
-    TorchAutofireAspect         = "Supay",
-
-    BaseSuitAspect              = "Mel Coat",
-    SuitMarkCritAspect          = "Nyx",
-    SuitHexAspect               = "Selene",
-    SuitComboAspect             = "Shiva",
-}
-
-Utils.WeaponAspectMapping = {
-    WeaponStaffSwing = { "BaseStaffAspect", "StaffClearCastAspect", "StaffSelfHitAspect", "StaffRaiseDeadAspect" },
-    WeaponDagger     = { "DaggerBackstabAspect", "DaggerHomingThrowAspect", "DaggerBlockAspect", "DaggerTripleAspect" },
-    WeaponAxe        = { "AxeRecoveryAspect", "AxeArmCastAspect", "AxePerfectCriticalAspect", "AxeRallyAspect" },
-    WeaponTorch      = { "TorchSpecialDurationAspect", "TorchSprintRecallAspect", "TorchDetonateAspect", "TorchAutofireAspect" },
-    WeaponLob        = { "LobAmmoBoostAspect", "LobCloseAttackAspect", "LobImpulseAspect", "LobGunAspect" },
-    WeaponSuit       = { "BaseSuitAspect", "SuitMarkCritAspect", "SuitHexAspect", "SuitComboAspect" }
-}
-
-for weaponName, aspects in pairs(Utils.WeaponAspectMapping) do
-    local baseWeaponData = Utils.hammerData[weaponName]
-    
-    for _, aspectName in ipairs(aspects) do
-        Utils.hammerData[aspectName] = baseWeaponData
-    end
-end
-
-Utils.aspectDrawOrder = {}
-for _, weaponName in ipairs(Utils.weaponDrawOrder) do
-    local aspects = Utils.WeaponAspectMapping[weaponName]
-    
-    if aspects then
-        for _, aspectName in ipairs(aspects) do
-            table.insert(Utils.aspectDrawOrder, aspectName)
-        end
-    end
-end
+-- Data definitions loaded from def.lua
 
 -- =============================================================================
 -- HELPER FUNCTIONS
@@ -146,7 +49,7 @@ end
 
 function Utils.GetEquippedWeapon()
     if not CurrentRun or not CurrentRun.Hero then return "WeaponStaffSwing" end
-    for k, weaponName in ipairs(WeaponSets.HeroPrimaryWeapons) do
+    for _, weaponName in ipairs(WeaponSets.HeroPrimaryWeapons) do
         if CurrentRun.Hero.Weapons[weaponName] then
             return weaponName
         end
@@ -158,17 +61,14 @@ function Utils.GetEquippedAspect()
 
     local possibleAspects = Utils.WeaponAspectMapping[currentWeapon]
 
-    -- Safety check in case the weapon isn't in our mapping table
     if not possibleAspects then return "BaseStaffAspect" end
 
-    -- 3. Loop strictly through those 4 aspects
     for _, aspectName in ipairs(possibleAspects) do
         if HeroHasTrait(aspectName) then
             return aspectName
         end
     end
 
-    -- 4. Fallback: Return the base aspect for that specific weapon if none are equipped yet
     return possibleAspects[1] 
 end
 
@@ -628,6 +528,11 @@ end
 -- =============================================================================
 function Utils.ApplyConfigChanges()
     RestoreBackups()
+
+    if not config.ModEnabled then
+        SetupRunData()
+        return
+    end
 
     if config.ForceMedea then
         AddToBackup(RoomSetData.N.N_Story01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")

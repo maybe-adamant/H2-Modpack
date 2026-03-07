@@ -47,7 +47,6 @@ return {
     ModEnabled = true,
     DebugMode = false,
 
-    ActivePreset = "",
     RTAMode = false,
 
     ForceMedea = false,
@@ -58,7 +57,6 @@ return {
     SurfaceStructureFix = false,
     DisableSeleneBeforeBoon = false,
 
-    BugFixEnabled = true,
     
     BugFixes = {
         CorrosionFix = true,

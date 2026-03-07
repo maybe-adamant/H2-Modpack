@@ -33,14 +33,15 @@ public.config = config
 
 local function on_ready()
     import_as_fallback(rom.game)
-    
 
+    import("def.lua")
     import("logic.lua")
 end
 
 local function on_reload()
     import_as_fallback(rom.game)
     -- import("logic.lua")
+    import("def.lua")
     
     import ("ui.lua")
 end

@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Added
+- Improved UI handling
+- Performance Optimization
+- Code restructing for expandability
+
 ## [1.0.9] - 2026-03-06
 
 ### Added
@@ -22,7 +27,7 @@
 
 ### Fixed
 
-- Fixing Encounter banning for RTA and Surface fixes  
+- Encounter banning for RTA and Surface fixes  
 
 ## [1.0.7] - 2026-03-05
 

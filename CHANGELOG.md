@@ -2,13 +2,17 @@
 
 ## [Unreleased]
 
+## [1.0.11] - 2026-03-08
+
 ### Added
+
 - Modded Stamp to screen while running the mod to clarify that the run is modded as well as a hash code showing mod config
 - Mod UI Theme
 - Added an option to make Fig Leaf increment based on biome depth instead of a fixed percentage
 - Added an option to disable gem drops from bosses when using Grave Thirst
 
 ### Fixed
+
 - Fixed a bug where passing a hammer room will assu
 - Preset dropdown fix
 - Preset description more clarified
@@ -78,7 +82,8 @@
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.10...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.11...HEAD
+[1.0.11]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.9...1.0.10
 [1.0.9]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.8...1.0.9
 [1.0.8]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.7...1.0.8

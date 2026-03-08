@@ -1,4 +1,6 @@
 local ui = rom.ImGui
+local uiCol = rom.ImGuiCol
+
 local Utils = adamant_Modpack
 
 local hasLocalizedLabels = false
@@ -27,13 +29,38 @@ end
 -- =============================================================================
 
 local colors = {
-    text          = {0.95, 0.95, 0.95, 1.0},  -- Crisp white
-    textDisabled  = {0.45, 0.45, 0.50, 1.0},  -- Cool, silvery dark gray
+    -- Semantic colors (for DrawColoredText)
+    text          = {0.92, 0.90, 0.95, 1.0},  -- Lavender white
+    textDisabled  = {0.45, 0.40, 0.55, 1.0},  -- Muted purple-gray
     info          = {0.90, 0.75, 0.20, 1.0},  -- Bright Gold
     warning       = {0.85, 0.20, 0.25, 1.0},  -- Deep Red
-    success       = {0.20, 0.80, 0.20, 1.0},  -- Bright Green for 'All Enabled'
-    error         = {0.85, 0.30, 0.30, 1.0},  -- Soft Red for 'All Disabled'
-    mixed         = {0.30, 0.70, 0.90, 1.0},  -- Sky Blue for 'Mixed Configuration'
+    success       = {0.30, 0.85, 0.55, 1.0},  -- Emerald green (softer against purple)
+    error         = {0.90, 0.35, 0.50, 1.0},  -- Rose-pink (distinct from warning, fits purple)
+    mixed         = {0.30, 0.70, 0.90, 1.0},  -- Sky Blue
+
+    -- Theme colors (for PushTheme)
+    windowBg      = {0.08, 0.06, 0.12, 0.95}, -- Deep violet-black
+    childBg       = {0.10, 0.08, 0.15, 0.90}, -- Slightly lighter violet
+
+    header        = {0.28, 0.18, 0.45, 1.0},  -- Rich purple
+    headerHover   = {0.38, 0.25, 0.58, 1.0},  -- Lighter purple
+    headerActive  = {0.45, 0.30, 0.65, 1.0},  -- Bright purple
+
+    button        = {0.30, 0.20, 0.48, 1.0},  -- Purple button
+    buttonHover   = {0.40, 0.28, 0.60, 1.0},  -- Lighter on hover
+    buttonActive  = {0.50, 0.35, 0.70, 1.0},  -- Brightest on click
+
+    frameBg       = {0.14, 0.10, 0.22, 1.0},  -- Dark purple input bg
+    frameBgHover  = {0.20, 0.15, 0.30, 1.0},  -- Slightly lit
+    frameBgActive = {0.25, 0.18, 0.38, 1.0},  -- Active input
+    checkMark     = {0.75, 0.55, 1.00, 1.0},  -- Bright lilac checkmark
+
+    tab           = {0.18, 0.12, 0.28, 1.0},  -- Inactive tab
+    tabHover      = {0.35, 0.22, 0.52, 1.0},  -- Hovered tab
+    tabActive     = {0.40, 0.28, 0.60, 1.0},  -- Selected tab
+
+    separator     = {0.30, 0.20, 0.45, 0.6},  -- Soft purple line
+    border        = {0.25, 0.18, 0.38, 0.5},  -- Subtle purple border
 }
 
 local ImGuiTreeNodeFlags = {
@@ -55,6 +82,45 @@ local runModifierLayout = Utils.runModifierLayout
 
 local function DrawColoredText(color, text)
     ui.TextColored(color[1], color[2], color[3], color[4], text)
+end
+
+local function PushTextColor(color)
+    ui.PushStyleColor(uiCol.Text, color[1], color[2], color[3], color[4])
+end
+
+local THEME_COLOR_COUNT = 20
+local function PushTheme()
+    local push = ui.PushStyleColor
+
+    push(uiCol.Text,            table.unpack(colors.text))
+    push(uiCol.TextDisabled,    table.unpack(colors.textDisabled))
+    push(uiCol.WindowBg,        table.unpack(colors.windowBg))
+    push(uiCol.ChildBg,         table.unpack(colors.childBg))
+
+    push(uiCol.Header,          table.unpack(colors.header))
+    push(uiCol.HeaderHovered,   table.unpack(colors.headerHover))
+    push(uiCol.HeaderActive,    table.unpack(colors.headerActive))
+
+    push(uiCol.Button,          table.unpack(colors.button))
+    push(uiCol.ButtonHovered,   table.unpack(colors.buttonHover))
+    push(uiCol.ButtonActive,    table.unpack(colors.buttonActive))
+
+    push(uiCol.FrameBg,         table.unpack(colors.frameBg))
+    push(uiCol.FrameBgHovered,  table.unpack(colors.frameBgHover))
+    push(uiCol.FrameBgActive,   table.unpack(colors.frameBgActive))
+    push(uiCol.CheckMark,       table.unpack(colors.checkMark))
+
+    push(uiCol.Tab,             table.unpack(colors.tab))
+    push(uiCol.TabHovered,      table.unpack(colors.tabHover))
+    push(uiCol.TabActive,       table.unpack(colors.tabActive))
+
+    push(uiCol.Separator,       table.unpack(colors.separator))
+    push(uiCol.Border,          table.unpack(colors.border))
+    push(uiCol.TitleBgActive,   table.unpack(colors.header))
+end
+
+local function PopTheme()
+    ui.PopStyleColor(THEME_COLOR_COUNT)
 end
 
 -- =============================================================================
@@ -207,7 +273,10 @@ end
 -- =============================================================================
 local function DrawCheckboxGroup(layoutData, targetConfig)
     for _, category in ipairs(layoutData) do
-        if ui.CollapsingHeader(category.Header, ImGuiTreeNodeFlags.DefaultOpen) then
+        PushTextColor(colors.info)
+        local collapsingHeader = ui.CollapsingHeader(category.Header, ImGuiTreeNodeFlags.DefaultOpen)
+        ui.PopStyleColor()
+        if collapsingHeader then
             ui.Indent()
 
             for _, itemData in ipairs(category.Items) do
@@ -269,7 +338,7 @@ local function DrawMainWindow()
             ui.PushItemWidth(ui.GetWindowWidth() * 0.45)
             if ui.BeginCombo("Active Preset", currentPreset) then
                 for _, presetName in ipairs(presetOrder) do
-                    if ui.Selectable(presetName, currentPreset == presetName) then
+                    if ui.Selectable(presetName, currentPreset == presetName) and presetName ~= currentPreset then
                         ApplyPreset(presetName)
                     end
                     if ui.IsItemHovered() then
@@ -390,12 +459,14 @@ local showModWindow = false
 
 rom.gui.add_imgui(function()
     if showModWindow then
+        PushTheme()
         if ui.Begin("Speedrun Modpack", true) then
             DrawMainWindow()
             ui.End()
         else
             showModWindow = false
         end
+        PopTheme()
     end
 end)
 

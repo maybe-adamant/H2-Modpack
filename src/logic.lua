@@ -209,8 +209,6 @@ modutil.mod.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
                     print("StartingHammer: " .. desiredHammer .. " is ineligible! Falling back to random.")
                 end
             end
-            
-            hasForcedHammerThisRun = true
 
         end
     end
@@ -571,16 +569,14 @@ function Utils.ApplyConfigChanges()
     if config.PreventEchoScam then
         AddToBackup(RoomData["H_MiniBoss01"], "GameStateRequirements")
         AddToBackup(RoomData["H_MiniBoss02"], "GameStateRequirements")
-        local targetRoom = (math.random(1, 2) == 1) and "H_MiniBoss01" or "H_MiniBoss02"
-        if RoomData and RoomData[targetRoom] and RoomData[targetRoom].GameStateRequirements then
-            local newReq = {
-                Path = { "CurrentRun", "BiomeDepthCache" },
-                Comparison = "!=",
-                Value = 3,
-            }
-            
-            local reqs = RoomData[targetRoom].GameStateRequirements
-            if not ListContainsEquivalent(reqs, newReq) then
+        local newReq = {
+            Path = { "CurrentRun", "BiomeDepthCache" },
+            Comparison = "!=",
+            Value = 3,
+        }
+        for _, roomName in ipairs({ "H_MiniBoss01", "H_MiniBoss02" }) do
+            local reqs = RoomData[roomName].GameStateRequirements
+            if reqs and not ListContainsEquivalent(reqs, newReq) then
                 table.insert(reqs, newReq)
             end
         end

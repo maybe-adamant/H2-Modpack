@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Added
+- Modded Stamp to screen while running the mod
+- Mod UI Theme
+
+### Fixed
+- Fixed a bug where passing a hammer room will assu
+- Preset dropdown fix
+- Preset description more clarified
+
 ## [1.0.10] - 2026-03-07
 
 ### Added

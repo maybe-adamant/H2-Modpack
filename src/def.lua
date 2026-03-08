@@ -220,7 +220,7 @@ Utils.presetOrder = { "AnyFear", "HighFear", "AllWeps" }
 
 Utils.presetDefinitions = {
 	AnyFear = {
-		tooltip = "RTA Disabled, Arachne Pity Disabled.",
+		tooltip = "RTA Disabled. Arachne Pity Disabled.",
 		RTAMode = false,
 		ForceMedea = true,
 		ForceArachne = false,
@@ -231,7 +231,7 @@ Utils.presetDefinitions = {
 		DisableSeleneBeforeBoon = true,
 	},
 	HighFear = {
-		tooltip = "RTA Disabled, Arachne Spawn Forced.",
+		tooltip = "RTA Disabled. Arachne Spawn Forced.",
 		RTAMode = false,
 		ForceMedea = true,
 		ForceArachne = true,
@@ -242,7 +242,7 @@ Utils.presetDefinitions = {
 		DisableSeleneBeforeBoon = true,
 	},
 	AllWeps = {
-		tooltip = "RTA Enabled, Medea/Arachne Forced.",
+		tooltip = "RTA Enabled. Arachne Pity Enabled. Medea/Arachne Spawns Not Forced.",
 		RTAMode = true,
 		ForceMedea = false,
 		ForceArachne = false,
@@ -265,7 +265,7 @@ Utils.bugFixLayout = {
 			{
 				Key = "SeleneFix",
 				Name = "Aspect of Selene Fix",
-				Tooltip = "Aspect of Selene properly registers its hex so you get offered PoS directly.",
+				Tooltip = "Aspect of Selene properly registers its hex so you get offered PoS directly. Skyfall is full moonglow",
 				RequiresApply = true,
 			},
 			{
@@ -277,13 +277,13 @@ Utils.bugFixLayout = {
 			{
 				Key = "StagedOmegaFix",
 				Name = "Staged Omega Fix",
-				Tooltip = "Fixes Omega Moves not benefiting from channeling bonus.",
+				Tooltip = "Fixes Axe OAtk, Blade OSpec not benefiting correctly from channeling bonus.",
 				RequiresApply = true,
 			},
 			{
 				Key = "TidalRingFix",
 				Name = "Tidal Ring Fix",
-				Tooltip = "Fixes Tidal Ring not hitting the same mob twice with Circe staff.",
+				Tooltip = "Fixes Tidal Ring not hitting the same mob twice with Circe.",
 				RequiresApply = true,
 			},
 		},
@@ -358,13 +358,13 @@ Utils.bugFixLayout = {
 			{
 				Key = "MiniBossEncounterFix",
 				Name = "Miniboss Encounter Fix",
-				Tooltip = "Fixes Miniboss top screen health bars not properly progressing biome depth.",
+				Tooltip = "Fixes Miniboss with top screen health bars not properly progressing biome depth\nBosses like Boar, Charybdis, Talos.",
 				RequiresApply = true,
 			},
 			{
 				Key = "FamiliarDelayFix",
 				Name = "Familiar Delay Fix",
-				Tooltip = "Fixes Familiars being summoned after a delay upon entering a room.",
+				Tooltip = "Fixes Familiars being summoned after a delay upon entering a room.\nGale can block hits right away and Toula spawn more convenient",
 				RequiresApply = true,
 			},
 		},
@@ -396,7 +396,7 @@ Utils.runModifierLayout = {
 			{
 				Key = "PreventEchoScam",
 				Name = "Prevent Echo Scam",
-				Tooltip = "Prevents Echo scam by preventing one miniboss at room 3.",
+				Tooltip = "Prevents Echo scam by blocking both minibosses from spawning at room 3.",
 				RequiresApply = true,
 			},
 			{

@@ -1,43 +1,73 @@
 # Hades 2 Utility and Bugfix Modpack
 
-This mod provides an in-game ImGui menu to configure targeted gameplay adjustments, starting hammer selection, and various bug fixes. All features can be toggled individually. Inspired by Hades 1 Speedrunning Modpack
+This mod provides an in-game ImGui menu to configure targeted gameplay adjustments, starting hammer selection, and various bug fixes. All features can be toggled individually. Inspired by Hades 1 Speedrunning Modpack.
 
-Design philosphy is keep the game vanilla but remove some frustrating design choices.
+Design philosophy is keep the game vanilla but remove some frustrating design choices.
 
-## Features & Gameplay Adjustments
+## How to Use
 
-* **RTA Mode:** Disables all combat pausing encounters for RTA runs 
-* **Starting Hammer Selection:** Allows the player to select a specific hammer for their equipped weapon via the in-game UI. The chosen hammer is guaranteed on the first hammer drop. If the selected hammer is ineligible due to weapon aspects or other conditions, the game defaults to vanilla random generation.
-* **Medea Pity:** Forces Medea to spawn to reduce death resetting for pity.
-* **Arachne Pity:** Forces Arachne to spawn to reduce death resetting for pity.
-* **Disable Arachne Pity:** Disable Arachne pity completely for Anyfear runs
-* **Charybdis Behavior Adjustment:** Modifies the Charybdis mini boss fight phase transition. Tentacles despawn for 1 second instead of 9 seconds, and spit attacks during transition are reduced from 8 to 6.
-* **Echo scam gone:** You will no longer get Echo scammed. Mod will now prevent one of the minibosses at random from spawning at room 3 in the field and thus ensuring that Echo always appear.
-* **Less Sucky Surface:** Three adjustments to the Surface:  
-1-Thessaly minibosses are forced to appear between rooms 2 and 4 (consistent with other biomes).  
-2-the Olympus mid-shop is forced to appear between rooms 5 and 7 (consistent with the Oceanus mid-shop).  
-3-Hercales cannot spawn on Thessaly anymore.
+Open the mod menu from the **Modpack** entry in the ImGui menu bar and click **Toggle Mod Menu**.
+
+### Master Toggle
+The **Enable Mod** checkbox at the top enables or disables the entire modpack. Disabling it automatically reverts all game data mutations — no restart needed.
+
+### Tabs
+
+1. **Quick Setup** — Pick a preset to configure the modpack in one click:
+   - **AnyFear** — RTA disabled, Arachne pity disabled. For anyfear routing.
+   - **HighFear** — RTA disabled, Arachne spawn forced. For highfear routing.
+   - **AllWeps** — RTA enabled, all-weapons routing.
+   - The dropdown auto-detects your current settings. If you manually tweak individual options it shows **Custom**.
+   - Also includes quick toggles for all bug fixes (Enable All / Disable All) and a hammer selector for your currently equipped aspect.
+
+2. **Hammers** — Select a guaranteed first hammer for each weapon aspect. Organized by weapon, with collapsible sections per aspect. If the selected hammer is ineligible due to weapon aspects or other conditions, the game defaults to vanilla random selection.
+
+3. **Run Modifiers** — Toggle individual gameplay adjustments (see below). Settings grouped under collapsible headers.
+
+4. **Bug Fixes** — Toggle individual bug fixes (see below). Each fix can be enabled or disabled independently.
+
+### Applying Changes
+Most settings require clicking the **Apply Changes** button (pinned to the bottom of the window) to take effect. The UI shows a warning when you have unapplied changes. Toggling a setting back to its applied state clears the warning automatically.
+
+Live settings like **RTA Mode** and **Suffering Fix** take effect immediately without needing Apply.
+
+## Run Modifiers
+
+### NPCs & Routing
+* **Force Medea Spawn:** Forces Medea to spawn to reduce death resetting for pity.
+* **Force Arachne Spawn:** Forces Arachne to spawn to reduce death resetting for pity.
+* **Disable Arachne Pity:** Disables Arachne pity completely for Anyfear runs.
+* **Prevent Echo Scam:** Blocks both minibosses from spawning at room 3 in the Fields, ensuring Echo always appears.
 * **Disable Selene Before First Boon:** Prevents Selene's Gift from spawning until the player has acquired at least one core Olympian boon or a hammer.
 
-## Bug Fixes And Adjustment
+### World & Combat Tweaks
+* **RTA Mode:** Disables all combat pausing encounters for RTA runs.
+* **Less Sucky Surface:** Three adjustments:
+  1. Thessaly minibosses forced between rooms 2–4 (consistent with other biomes).
+  2. Olympus mid-shop forced between rooms 5–7 (consistent with Oceanus mid-shop).
+  3. Hercules cannot spawn on Thessaly anymore.
+* **Charybdis Behavior Adjustment:** Tentacles despawn in 1 second instead of 9 seconds at phase transition. Spit attacks reduced from 8 to 6.
 
-* **Corrosion Fix:** Prevents Corrosion on Sight effect from unintentionally drawing aggression from enemies on Thessaly boats.
-* **GGG Echo Fix:** Adjusts requirements to allow the GGG Echo boon to be offered if the player ever equiped Jpom or Eris Keepsake..
-* **Braid of Atlas Fix:** Ensures that Braid cast damage modifier correctly applies to all cast projectiles.
-* **Miniboss Encounter Fix:** All mini bosses with top screen health bars like Boar, Charybdis, Talos, and Typhon Eye/Arm encounters now correctly count toward room encounter depth.
-* **Extra Dose Fix:** Extra Dose now works with the Coat second punch and dash strike.
-* **Omega Cast Effects Fix:** Ensures specific Omega Cast moves (e.g., Prominence Flare, Glorious Disaster, Meat Grinder) are correctly classified as Cast damage to benefit from relevant damage modifiers.
-* **Aspect of Selene Fix:** Correctly registers the Hex upon run start making the player eligible to receive Path of Stars upgrades right away. Also Sky Fall is always at full Moonglow (+2 Path of Stars point on first pick instead of 0).
-* **Poseidon Waves Fix:** Poseidon wave effects correctly trigger on the Axe special and the Hidden Helix Torch.
-* **Tidal Ring Fix:** Removes the immunity duration on Poseidon Cast Splash, allowing it to hit the same enemy multiple times with the Circe staff.
-* **Shimmering Moonshot Fix:** Applies the intended damage bonus to Omega Special projectiles.
-* **Staged Omega Fix:** Adjusts the minimum weapon charge time for Axe Omega Attack and Blade Omega Special to ensure they benefit from channeling bonuses (Furious Whirlwind and Sudden Flurry are somewhat good now)
-* **Exceptional Talent Fix:** Fixes compatibility with Anubis Omega Attack by making ET generate another field closer to the player. Stacking it with Mirrored Ankh now creates three fields (Normal field, Far field from Mirrord Ankh, Near field from ET). 
-* **Stacking Anubis OAtk Adjustment:** Attempted to fix how multiple Anubis OAtk fields are placed in general to make them look more consistent when placed horizontally and vertically.
-* **Second Stage Channeling Fix:** Removes the secondary channeling requirement for Glorious Disaster and Giga Moonburst, baking the mana cost and damage bonuses directly into the primary stage charge.  
-Glorious Disaster also now works similar to other OCast expiring boons (for example Charon triggers it)  
-No localization changes yet (boon description remain unchanged might update it later)
-* **Cardio Torch Fix:** Cardio gain now works properly on all Torch specials (It triggers multiple times on non hidden aspect Torches and it triggers properly on Supay).
-* **Familiar Spawn Delay Fix:** Familiar now spawn as soon as you enter a room allowing Gale to block hits right away and maybe buffing Toula (might revert if that's the case)
-* **Suffering on Sight Fix:** Suffering on Sight damage now bypasses wards similar to how Corrosion on Sight works.
+## Bug Fixes
 
+### Weapons & Attacks
+* **Aspect of Selene Fix:** Correctly registers the Hex upon run start for immediate Path of Stars eligibility. Sky Fall always at full Moonglow.
+* **Extra Dose Fix:** Extra Dose now works with Coat second punch and dash strike.
+* **Staged Omega Fix:** Adjusts minimum weapon charge time for Axe Omega Attack and Blade Omega Special to benefit from channeling bonuses.
+* **Tidal Ring Fix:** Removes immunity duration on Poseidon Cast Splash, allowing multiple hits with Circe staff.
+
+### Boons & Hammers
+* **Poseidon Waves Fix:** Poseidon wave effects correctly trigger on Axe special and Hidden Helix Torch.
+* **Shimmering Moonshot Fix:** Applies intended damage bonus to Omega Special projectiles.
+* **Second Stage Channeling Fix:** Removes secondary channeling for Glorious Disaster and Giga Moonburst, baking mana cost and damage bonuses into the primary stage. Glorious Disaster now works similar to other OCast expiring boons.
+* **Omega Cast Effects Fix:** Omega Cast moves (Prominence Flare, Glorious Disaster, Meat Grinder) correctly classified as Cast damage.
+* **Cardio Torch Fix:** Cardio gain works properly on all Torch specials (triggers multiple times on non-hidden aspect Torches and properly on Supay).
+* **Braid of Atlas Fix:** Braid cast damage modifier correctly applies to all cast projectiles.
+* **ET Fixes:** Fixes ET compatibility with Anubis Omega Attack by generating a closer field. Also fixes Anubis OAtk field distance based on casting angle.
+
+### NPC & Encounters
+* **Corrosion Fix:** Prevents Corrosion on Sight from aggroing enemies on Thessaly boats.
+* **Suffering on Sight Fix:** Suffering on Sight damage now bypasses wards (consistent with Corrosion on Sight).
+* **GGG Echo Fix:** Allows GGG to be offered in Jpom runs.
+* **Miniboss Encounter Fix:** All mini bosses with top screen health bars (Boar, Charybdis, Talos, Typhon Eye/Arm) correctly count toward room encounter depth.
+* **Familiar Spawn Delay Fix:** Familiars spawn immediately upon entering a room.

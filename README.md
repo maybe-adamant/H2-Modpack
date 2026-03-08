@@ -16,7 +16,7 @@ The **Enable Mod** checkbox at the top enables or disables the entire modpack. D
 1. **Quick Setup** — Pick a preset to configure the modpack in one click:
    - **AnyFear** — RTA disabled, Arachne pity disabled. For anyfear routing.
    - **HighFear** — RTA disabled, Arachne spawn forced. For highfear routing.
-   - **AllWeps** — RTA enabled, all-weapons routing.
+   - **RTA** — RTA enabled, all-weapons routing.
    - The dropdown auto-detects your current settings. If you manually tweak individual options it shows **Custom**.
    - Also includes quick toggles for all bug fixes (Enable All / Disable All) and a hammer selector for your currently equipped aspect.
 
@@ -29,7 +29,7 @@ The **Enable Mod** checkbox at the top enables or disables the entire modpack. D
 ### Applying Changes
 Most settings require clicking the **Apply Changes** button (pinned to the bottom of the window) to take effect. The UI shows a warning when you have unapplied changes. Toggling a setting back to its applied state clears the warning automatically.
 
-Live settings like **RTA Mode** and **Suffering Fix** take effect immediately without needing Apply.
+Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Leaf**, and **Suffering Fix** take effect immediately without needing Apply.
 
 ## Run Modifiers
 
@@ -42,6 +42,8 @@ Live settings like **RTA Mode** and **Suffering Fix** take effect immediately wi
 
 ### World & Combat Tweaks
 * **RTA Mode:** Disables all combat pausing encounters for RTA runs.
+* **Skip Gem Boss Reward:** Bosses no longer drop gem rewards when using Grave Thirst.
+* **Incrementing Fig Leaf:** Dionysus skip chance starts at the default value (37%) and increases by 13% after every encounter, resetting at the start of each biome.
 * **Less Sucky Surface:** Three adjustments:
   1. Thessaly minibosses forced between rooms 2–4 (consistent with other biomes).
   2. Olympus mid-shop forced between rooms 5–7 (consistent with Oceanus mid-shop).

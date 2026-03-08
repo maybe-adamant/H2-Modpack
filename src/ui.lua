@@ -427,6 +427,13 @@ local function DrawMainWindow()
             ui.EndTabItem()
         end
 
+        if ui.BeginTabItem("Dev") then
+            ui.Spacing()
+            local val, chg = ui.Checkbox("Debug Mode", config.DebugMode)
+            if chg then config.DebugMode = val end
+            ui.EndTabItem()
+        end
+
         ui.EndTabBar()
     end
 

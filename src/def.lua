@@ -216,12 +216,14 @@ end
 -- PRESET DEFINITIONS
 -- =============================================================================
 
-Utils.presetOrder = { "AnyFear", "HighFear", "AllWeps" }
+Utils.presetOrder = { "AnyFear", "HighFear", "RTA" }
 
 Utils.presetDefinitions = {
 	AnyFear = {
 		tooltip = "RTA Disabled. Arachne Pity Disabled.",
 		RTAMode = false,
+		SkipGemBossReward = false,
+		EscalatingFigLeaf = true,
 		ForceMedea = true,
 		ForceArachne = false,
 		DisableArachnePity = true,
@@ -233,6 +235,8 @@ Utils.presetDefinitions = {
 	HighFear = {
 		tooltip = "RTA Disabled. Arachne Spawn Forced.",
 		RTAMode = false,
+		SkipGemBossReward = false,
+		EscalatingFigLeaf = true,
 		ForceMedea = true,
 		ForceArachne = true,
 		DisableArachnePity = false,
@@ -241,9 +245,11 @@ Utils.presetDefinitions = {
 		SurfaceStructureFix = true,
 		DisableSeleneBeforeBoon = true,
 	},
-	AllWeps = {
+	RTA = {
 		tooltip = "RTA Enabled. Arachne Pity Enabled. Medea/Arachne Spawns Not Forced.",
 		RTAMode = true,
+		SkipGemBossReward = true,
+		EscalatingFigLeaf = true,
 		ForceMedea = false,
 		ForceArachne = false,
 		DisableArachnePity = true,
@@ -414,6 +420,16 @@ Utils.runModifierLayout = {
 				Key = "RTAMode",
 				Name = "RTA Mode",
 				Tooltip = "Disables all combat pausing encounters for RTA runs.",
+			},
+			{
+				Key = "SkipGemBossReward",
+				Name = "Skip Gem Boss Reward",
+				Tooltip = "Bosses no longer drop gem rewards when using Grave Thrist.",
+			},
+			{
+				Key = "EscalatingFigLeaf",
+				Name = "Incrementing Fig Leaf",
+				Tooltip = "Dionysus Skip Chance starts at default value and increases by 13% after every encounter, resetting on biome start.",
 			},
 			{
 				Key = "SurfaceStructureFix",

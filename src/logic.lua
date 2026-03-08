@@ -38,11 +38,7 @@ local function RestoreBackups()
     end
 end
 
--- local function AddToBackup(tableRef, ...) end
--- local function RestoreBackups() end
-
 -- Data definitions loaded from def.lua
-
 -- =============================================================================
 -- HELPER FUNCTIONS
 -- =============================================================================
@@ -56,6 +52,14 @@ function Utils.GetEquippedWeapon()
     end
     return "WeaponStaffSwing"
 end
+
+function Utils.PrintDebug(...)
+    if config.DebugMode then
+        print(...)
+    end
+end
+
+
 function Utils.GetEquippedAspect()
     local currentWeapon = Utils.GetEquippedWeapon()
 
@@ -145,21 +149,40 @@ function Utils.ApplyRoomChanges(roomName, changeCallback)
     end
 end
 
+local function GetConfigHash()
+    local flags = {}
+    for _, category in ipairs(Utils.runModifierLayout) do
+        for _, item in ipairs(category.Items) do
+            table.insert(flags, config[item.Key] and 1 or 0)
+        end
+    end
+    for _, category in ipairs(Utils.bugFixLayout) do
+        for _, item in ipairs(category.Items) do
+            table.insert(flags, config.BugFixes[item.Key] and 1 or 0)
+        end
+    end
+    local hash = 0
+    for i, bit in ipairs(flags) do
+        hash = hash + bit * (2 ^ (i - 1))
+    end
+    return string.format("%06X", hash)
+end
 
 -- =============================================================================
 -- MOD ENGINE HOOKS
 -- =============================================================================
 --Special wrap to reset the forced hammer flag at the start of each run and handle Selene Aspect's initial hex record
 modutil.mod.Path.Wrap("StartNewRun", function(baseFunc, prevRun, args)
+
     hasForcedHammerThisRun = false
 
     local currentRun = baseFunc(prevRun, args)
+    currentRun.ModpackHash = config.ModEnabled and GetConfigHash() or "OFF"
+    Utils.PrintDebug("Current Modpack Config Hash: " .. tostring(currentRun.ModpackHash))
 
     if config.ModEnabled and config.BugFixes.SeleneFix then
         if HeroHasTrait("SuitHexAspect") then
-            if config.DebugMode then
-                print("Starting run with Selene Aspect - granting Selene's Boon")
-            end
+            Utils.PrintDebug("Starting run with Selene Aspect - granting Selene's Boon")
             RecordUse( nil, "SpellDrop" )
         end
     end
@@ -174,10 +197,7 @@ modutil.mod.Path.Wrap("SpawnRoomReward", function(base, eventSource, args)
         if args.WaitUntilPickup then
             args.RewardOverride = "TalentDrop" 
             args.LootName = nil           
-            
-            if config.DebugMode then
-                print("Starting run with Selene Aspect and Moonbeam - granting Path of Stars Directly")
-            end
+            Utils.PrintDebug("Starting run with Selene Aspect and Moonbeam - granting Path of Stars Directly")
         end
     end
     return base(eventSource, args)
@@ -205,9 +225,7 @@ modutil.mod.Path.Wrap("SetTraitsOnLoot", function(baseFunc, lootData, args)
                     { ItemName = desiredHammer, Type = "Trait" }
                 }
             else
-                if config.DebugMode then
-                    print("StartingHammer: " .. desiredHammer .. " is ineligible! Falling back to random.")
-                end
+                Utils.PrintDebug("StartingHammer: " .. desiredHammer .. " is ineligible! Falling back to random.")
             end
 
         end
@@ -224,10 +242,7 @@ modutil.mod.Path.Wrap("AddTraitToHero", function(baseFunc, args)
     local desiredHammer = config.FirstHammers[currentWeapon]
 
     if desiredHammer == traitName then
-        if config.DebugMode then
-            print("AddTraitToHero: Granting guaranteed first hammer -> " .. tostring(traitName))
-        end
-
+        Utils.PrintDebug("AddTraitToHero: Granting guaranteed first hammer -> " .. tostring(traitName))
         -- Lock out the mod for the rest of the run so future hammers are natural
         hasForcedHammerThisRun = true
     end
@@ -336,6 +351,64 @@ modutil.mod.Path.Wrap("CheckAxeCastArm", function(baseFunc, triggerArgs, args)
     baseFunc(triggerArgs, args)
 
 
+end)
+
+
+--Wrap to stop bosses from dropping gem rewards when using Grave Thirst
+modutil.mod.Path.Wrap("UnusedWeaponBonusDropGems", function(baseFunc, source, args )
+    if config.ModEnabled and config.SkipGemBossReward then
+        Utils.PrintDebug("UnusedWeaponBonusDropGems called after boss. Skipping gem rewards.")
+        return
+    end
+    return baseFunc(source, args)
+end)
+
+
+--Wrap to handle escalating skip chance for Dionysus Skip keepsake by applying the growth to the trait directly at 
+--the point of use, ensuring it interacts properly with all systems that read the trait's values and allowing the 
+--growth to be visible in tooltips and the like without needing to replicate the logic in multiple places.
+modutil.mod.Path.Wrap("DionysusSkipTrait", function(baseFunc, args, traitData)
+    baseFunc(args, traitData)
+    if not config.ModEnabled or not config.EscalatingFigLeaf then return end
+
+    for _, trait in ipairs(CurrentRun.Hero.Traits) do
+        if trait.Name == "PersistentDionysusSkipKeepsake" then
+            trait.InitialSkipEncounterChance = trait.SkipEncounterChance
+            trait.SkipEncounterGrowthPerRoom = 0.13
+            Utils.PrintDebug("Applied Dionysus Skip Chance Growth. Initial Chance: " .. tostring(trait.SkipEncounterChance) .. ", Growth per room: " .. tostring(trait.SkipEncounterGrowthPerRoom))
+            break
+        end
+    end
+end)
+
+modutil.mod.Path.Wrap("EndEncounterEffects", function(baseFunc, currentRun, currentRoom, currentEncounter)
+    baseFunc(currentRun, currentRoom, currentEncounter)
+    if config.ModEnabled and config.EscalatingFigLeaf then
+        if currentEncounter == currentRoom.Encounter or currentEncounter == MapState.EncounterOverride then
+            if HeroHasTrait("PersistentDionysusSkipKeepsake") then
+                local traitData = GetHeroTrait("PersistentDionysusSkipKeepsake")
+                if traitData.SkipEncounterChance and traitData.SkipEncounterGrowthPerRoom then
+                    Utils.PrintDebug("Increasing Dionysus Skip Chance by " .. tostring(traitData.SkipEncounterGrowthPerRoom) .. " for next encounter. Previous Chance: " .. tostring(traitData.SkipEncounterChance) .. ", New Chance: " .. tostring(math.min(1, traitData.SkipEncounterChance + traitData.SkipEncounterGrowthPerRoom)))
+                    traitData.SkipEncounterChance = math.min(1, traitData.SkipEncounterChance + traitData.SkipEncounterGrowthPerRoom)
+                end
+            end
+        end
+    end
+end)
+
+modutil.mod.Path.Wrap("StartRoom", function(baseFunc, currentRun, currentRoom)
+    baseFunc(currentRun, currentRoom)
+    if config.ModEnabled and config.EscalatingFigLeaf then
+        if currentRoom.BiomeStartRoom then
+            if HeroHasTrait("PersistentDionysusSkipKeepsake") then
+                local traitData = GetHeroTrait("PersistentDionysusSkipKeepsake")
+                if traitData.InitialSkipEncounterChance then
+                    traitData.SkipEncounterChance = traitData.InitialSkipEncounterChance
+                    Utils.PrintDebug("Resetting Dionysus Skip Chance to initial value: " .. tostring(traitData.SkipEncounterChance))
+                end
+            end
+        end
+    end
 end)
 
 --Wrap to make Suffering on Sight bypass Vow of Wards

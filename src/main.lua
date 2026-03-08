@@ -39,7 +39,7 @@ local function ApplyModdedMark()
     sjson.hook(file, function(data)
         for _, v in ipairs(data.Texts) do
             if v.Id == 'UI_RoomCount' then
-                v.DisplayName = v.DisplayName .. "\n\n\n\n\nModded Run"
+                v.DisplayName = v.DisplayName .. "\n\n\n\n\n\nModded - {$CurrentRun.ModpackHash}" 
                 break
             end
         end

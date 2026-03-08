@@ -3,8 +3,10 @@
 ## [Unreleased]
 
 ### Added
-- Modded Stamp to screen while running the mod
+- Modded Stamp to screen while running the mod to clarify that the run is modded as well as a hash code showing mod config
 - Mod UI Theme
+- Added an option to make Fig Leaf increment based on biome depth instead of a fixed percentage
+- Added an option to disable gem drops from bosses when using Grave Thirst
 
 ### Fixed
 - Fixed a bug where passing a hammer room will assu

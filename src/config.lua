@@ -45,10 +45,12 @@ return {
 
 
     ModEnabled = true,
-    DebugMode = false,
+    DebugMode = true,
 
     RTAMode = false,
+    SkipGemBossReward = false,
 
+    EscalatingFigLeaf = false,
     ForceMedea = false,
     ForceArachne = false,
     DisableArachnePity = false,

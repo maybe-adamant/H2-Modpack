@@ -149,23 +149,51 @@ function Utils.ApplyRoomChanges(roomName, changeCallback)
     end
 end
 
+local BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+local CHUNK_BITS = 30 -- safe margin under 32-bit integer limit
+
+local function EncodeBase62(n)
+    if n == 0 then return "0" end
+    local result = ""
+    while n > 0 do
+        local idx = (n % 62) + 1
+        result = string.sub(BASE62, idx, idx) .. result
+        n = math.floor(n / 62)
+    end
+    return result
+end
+
 local function GetConfigHash()
-    local flags = {}
+    local chunks = {}
+    local chunk = 0
+    local bit = 0
+    local function addFlag(enabled)
+        if enabled then chunk = chunk + (2 ^ bit) end
+        bit = bit + 1
+        if bit >= CHUNK_BITS then
+            table.insert(chunks, chunk)
+            chunk = 0
+            bit = 0
+        end
+    end
     for _, category in ipairs(Utils.runModifierLayout) do
         for _, item in ipairs(category.Items) do
-            table.insert(flags, config[item.Key] and 1 or 0)
+            addFlag(config[item.Key])
         end
     end
     for _, category in ipairs(Utils.bugFixLayout) do
         for _, item in ipairs(category.Items) do
-            table.insert(flags, config.BugFixes[item.Key] and 1 or 0)
+            addFlag(config.BugFixes[item.Key])
         end
     end
-    local hash = 0
-    for i, bit in ipairs(flags) do
-        hash = hash + bit * (2 ^ (i - 1))
+    if bit > 0 then table.insert(chunks, chunk) end
+
+    local parts = {}
+    for _, c in ipairs(chunks) do
+        table.insert(parts, EncodeBase62(c))
     end
-    return string.format("%06X", hash)
+    if #parts == 0 then return "0" end
+    return table.concat(parts, ".")
 end
 
 -- =============================================================================
@@ -364,7 +392,7 @@ modutil.mod.Path.Wrap("UnusedWeaponBonusDropGems", function(baseFunc, source, ar
 end)
 
 
---Wrap to handle escalating skip chance for Dionysus Skip keepsake by applying the growth to the trait directly at 
+--Series of Wraps to handle escalating skip chance for Dionysus Skip keepsake by applying the growth to the trait directly at 
 --the point of use, ensuring it interacts properly with all systems that read the trait's values and allowing the 
 --growth to be visible in tooltips and the like without needing to replicate the logic in multiple places.
 modutil.mod.Path.Wrap("DionysusSkipTrait", function(baseFunc, args, traitData)
@@ -809,7 +837,6 @@ function Utils.ApplyConfigChanges()
         end)
     end
 
-
     if config.BugFixes.StagedOmegaFix then
         AddToBackup(WeaponData.WeaponDaggerThrow, "MinWeaponChargeTime")
         AddToBackup(WeaponData.WeaponAxeSpin,     "MinWeaponChargeTime")
@@ -828,7 +855,6 @@ function Utils.ApplyConfigChanges()
                     break
                 end
             end
-
             trait.OnWeaponFiredFunctions =
             {
                 ValidWeapons = { "WeaponStaffSwing5" },
@@ -871,27 +897,43 @@ function Utils.ApplyConfigChanges()
     end
 
     if config.BugFixes.FamiliarDelayFix then
-        AddToBackup(RoomEventData, "GlobalRoomStartEvents")
-        AddToBackup(RoomEventData, "GlobalRoomInputUnblockedEvents")
-        table.insert(RoomEventData.GlobalRoomStartEvents, {
-            Threaded = true,
-            FunctionName = "FamiliarSetup",
-            Args = {},   -- no WaitForInput, no Wait
-            GameStateRequirements = {
-                { PathTrue = { "GameState", "EquippedFamiliar" } },
-            },
-        })
-        local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
-        for i = #unblocked, 1, -1 do
-            if unblocked[i].FunctionName == "FamiliarSetup" then
-                table.remove(unblocked, i)
+        -- AddToBackup(RoomEventData, "GlobalRoomStartEvents")
+        -- AddToBackup(RoomEventData, "GlobalRoomInputUnblockedEvents")
+        -- table.insert(RoomEventData.GlobalRoomStartEvents, {
+        --     Threaded = true,
+        --     FunctionName = "FamiliarSetup",
+        --     Args = {},   -- no WaitForInput, no Wait
+        --     GameStateRequirements = {
+        --         { PathTrue = { "GameState", "EquippedFamiliar" } },
+        --     },
+        -- })
+        -- local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
+        -- for i = #unblocked, 1, -1 do
+        --     if unblocked[i].FunctionName == "FamiliarSetup" then
+        --         table.remove(unblocked, i)
+        --     end
+        -- end
+
+
+        if config.BugFixes.FamiliarDelayFix then
+            local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
+            for _, event in ipairs(unblocked) do
+                if event.FunctionName == "FamiliarSetup" then
+                    AddToBackup(event, "Args")
+                    event.Args = {}
+                    break
+                end
             end
         end
+
+
+
     end
 
     SetupRunData()
 end
 
 if config.ModEnabled then
+
     Utils.ApplyConfigChanges()
 end 

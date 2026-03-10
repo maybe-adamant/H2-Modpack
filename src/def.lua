@@ -221,42 +221,48 @@ Utils.presetOrder = { "AnyFear", "HighFear", "RTA" }
 Utils.presetDefinitions = {
 	AnyFear = {
 		tooltip = "RTA Disabled. Arachne Pity Disabled.",
-		RTAMode = false,
-		SkipGemBossReward = false,
-		EscalatingFigLeaf = true,
-		ForceMedea = true,
-		ForceArachne = false,
-		DisableArachnePity = true,
-		CharybdisBehaviorAdjustment = true,
-		PreventEchoScam = true,
-		SurfaceStructureFix = true,
-		DisableSeleneBeforeBoon = true,
+		RunModifiers = {
+			RTAMode = false,
+			SkipGemBossReward = false,
+			EscalatingFigLeaf = true,
+			ForceMedea = true,
+			ForceArachne = false,
+			DisableArachnePity = true,
+			CharybdisBehaviorAdjustment = true,
+			PreventEchoScam = true,
+			SurfaceStructureFix = true,
+			DisableSeleneBeforeBoon = true,
+		},
 	},
 	HighFear = {
 		tooltip = "RTA Disabled. Arachne Spawn Forced.",
-		RTAMode = false,
-		SkipGemBossReward = false,
-		EscalatingFigLeaf = true,
-		ForceMedea = true,
-		ForceArachne = true,
-		DisableArachnePity = false,
-		CharybdisBehaviorAdjustment = true,
-		PreventEchoScam = true,
-		SurfaceStructureFix = true,
-		DisableSeleneBeforeBoon = true,
+		RunModifiers = {
+			RTAMode = false,
+			SkipGemBossReward = false,
+			EscalatingFigLeaf = true,
+			ForceMedea = true,
+			ForceArachne = true,
+			DisableArachnePity = false,
+			CharybdisBehaviorAdjustment = true,
+			PreventEchoScam = true,
+			SurfaceStructureFix = true,
+			DisableSeleneBeforeBoon = true,
+		},
 	},
 	RTA = {
 		tooltip = "RTA Enabled. Arachne Pity Enabled. Medea/Arachne Spawns Not Forced.",
-		RTAMode = true,
-		SkipGemBossReward = true,
-		EscalatingFigLeaf = true,
-		ForceMedea = false,
-		ForceArachne = false,
-		DisableArachnePity = true,
-		CharybdisBehaviorAdjustment = true,
-		PreventEchoScam = true,
-		SurfaceStructureFix = true,
-		DisableSeleneBeforeBoon = true,
+		RunModifiers = {
+			RTAMode = true,
+			SkipGemBossReward = true,
+			EscalatingFigLeaf = true,
+			ForceMedea = false,
+			ForceArachne = false,
+			DisableArachnePity = true,
+			CharybdisBehaviorAdjustment = true,
+			PreventEchoScam = true,
+			SurfaceStructureFix = true,
+			DisableSeleneBeforeBoon = true,
+		},
 	},
 }
 
@@ -445,4 +451,38 @@ Utils.runModifierLayout = {
 			},
 		},
 	},
+}
+
+Utils.qolSettingsLayout = {
+	{
+		Header = "UI",
+		Items = {
+			{
+				Key = "AlwaysShowLocation",
+				Name = "Always Show Location Counter",
+				Tooltip = "Always displays the current location in the UI.",
+			},
+			{
+				Key = "AutoSkipDialogue",
+				Name = "Auto Skip Dialogue",
+				Tooltip = "Automatically skips dialogue prompts during gameplay.",
+			},
+			{
+				Key = "RunEndCutscene",
+				Name = "Skip End Run Cutscene",
+				Tooltip = "Skip the end-of-run cutscene. The victory screen will still appear, but you will be immediately returned to the main menu.",
+			},
+			{
+				Key = "DeathCutScene",
+				Name = "Skip Death Cutscene",
+				Tooltip = "Skip the death cutscene. The death screen will still appear, but you will be immediately returned to the main menu.",
+			},
+			{
+				Key = "SpawnInTrainingGrounds",
+				Name = "Spawn in Training Grounds",
+				Tooltip = "Spawns you in the Training Grounds instead of the House of Hades. Useful for testing and practicing.",
+			},
+		},
+	},
+
 }

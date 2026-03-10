@@ -1,6 +1,13 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- Several QoL options, including: Death Cutscene skip, Spawn in Training Grounds directly, Auto Skip Dialogue.
+- Credit to PonyWarrior for their PonyQoL2 mod.
+
+### Fixed
+- Mod Marker implementation significantly improved and made independent of other game systems. now toggles when the mod is enabled/disabled
+- Mod now fully applies its config when enabled and revert all changes when disabled.
 
 ## [1.0.12] - 2026-03-09
 

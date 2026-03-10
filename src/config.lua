@@ -47,17 +47,28 @@ return {
     ModEnabled = true,
     DebugMode = true,
 
-    RTAMode = false,
-    SkipGemBossReward = false,
+    QoLSettings = {
+        AlwaysShowLocation = true,
+        AutoSkipDialogue = false,
+        RunEndCutscene = true,
+        DeathCutScene = true,
+        SpawnInTrainingGrounds = true,
+    },
 
-    EscalatingFigLeaf = false,
-    ForceMedea = false,
-    ForceArachne = false,
-    DisableArachnePity = false,
-    CharybdisBehaviorAdjustment = false,
-    PreventEchoScam = false,
-    SurfaceStructureFix = false,
-    DisableSeleneBeforeBoon = false,
+    
+    RunModifiers = {
+        RTAMode = false,
+        SkipGemBossReward = false,
+
+        EscalatingFigLeaf = false,
+        ForceMedea = false,
+        ForceArachne = false,
+        DisableArachnePity = false,
+        CharybdisBehaviorAdjustment = false,
+        PreventEchoScam = false,
+        SurfaceStructureFix = false,
+        DisableSeleneBeforeBoon = false,
+    },
 
     
     BugFixes = {

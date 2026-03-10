@@ -79,6 +79,7 @@ local presetOrder = Utils.presetOrder
 local presetDefinitions = Utils.presetDefinitions
 local bugFixLayout = Utils.bugFixLayout
 local runModifierLayout = Utils.runModifierLayout
+local qolSettingsLayout = Utils.qolSettingsLayout
 
 local function DrawColoredText(color, text)
     ui.TextColored(color[1], color[2], color[3], color[4], text)
@@ -128,11 +129,23 @@ end
 -- =============================================================================
 local appliedSnapshot = {}
 local hasPendingChanges = false
+local cachedPreset = nil
+
+local function InvalidatePresetCache()
+    cachedPreset = nil
+end
+
+local function GetLayoutConfig(layout)
+    if layout == bugFixLayout then return config.BugFixes end
+    if layout == runModifierLayout then return config.RunModifiers end
+    if layout == qolSettingsLayout then return config.QoLSettings end
+    return config
+end
 
 local function SnapshotAppliedState()
     appliedSnapshot = {}
-    for _, layout in ipairs({ runModifierLayout, bugFixLayout }) do
-        local targetConfig = (layout == bugFixLayout) and config.BugFixes or config
+    for _, layout in ipairs({ runModifierLayout, bugFixLayout, qolSettingsLayout }) do
+        local targetConfig = GetLayoutConfig(layout)
         for _, category in ipairs(layout) do
             for _, item in ipairs(category.Items) do
                 if item.RequiresApply then
@@ -145,10 +158,10 @@ local function SnapshotAppliedState()
 end
 
 local function CheckForPendingChanges()
-    for _, layout in ipairs({ runModifierLayout, bugFixLayout }) do
+    for _, layout in ipairs({ runModifierLayout, bugFixLayout, qolSettingsLayout }) do
         local snap = appliedSnapshot[layout]
         if not snap then return true end
-        local targetConfig = (layout == bugFixLayout) and config.BugFixes or config
+        local targetConfig = GetLayoutConfig(layout)
         for key, savedVal in pairs(snap) do
             if targetConfig[key] ~= savedVal then
                 return true
@@ -164,35 +177,58 @@ SnapshotAppliedState()
 -- =============================================================================
 -- PRESET EVALUATION & APPLICATION
 -- =============================================================================
+
 local function ApplyPreset(presetType)
     local settings = presetDefinitions[presetType]
     if settings then
         for key, value in pairs(settings) do
             if key ~= "tooltip" then
-                config[key] = value
+                if type(value) == "table" and type(config[key]) == "table" then
+                    for k, v in pairs(value) do
+                        config[key][k] = v
+                    end
+                else
+                    config[key] = value
+                end
             end
         end
+        InvalidatePresetCache()
         hasPendingChanges = CheckForPendingChanges()
     end
 end
 
 local function EvaluateCurrentPreset()
+    if cachedPreset ~= nil then return cachedPreset end
+
+    local result = "Custom"
     for _, presetName in ipairs(presetOrder) do
         local expectedSettings = presetDefinitions[presetName]
         local isMatch = true
 
         for key, expectedValue in pairs(expectedSettings) do
-            if key ~= "tooltip" and config[key] ~= expectedValue then
-                isMatch = false
-                break
+            if key ~= "tooltip" then
+                if type(expectedValue) == "table" and type(config[key]) == "table" then
+                    for k, v in pairs(expectedValue) do
+                        if config[key][k] ~= v then
+                            isMatch = false
+                            break
+                        end
+                    end
+                elseif config[key] ~= expectedValue then
+                    isMatch = false
+                end
             end
+            if not isMatch then break end
         end
         if isMatch then
-            return presetName
+            result = presetName
+            break
         end
     end
 
-    return "Custom"
+    cachedPreset = result
+    Utils.UpdateHash()
+    return cachedPreset
 end
 
 -- =============================================================================
@@ -202,6 +238,7 @@ local function SetBugFixes(flag)
     for key in pairs(config.BugFixes) do
         config.BugFixes[key] = flag
     end
+    InvalidatePresetCache()
     hasPendingChanges = CheckForPendingChanges()
 end
 
@@ -285,6 +322,7 @@ local function DrawCheckboxGroup(layoutData, targetConfig)
 
                 if chg then
                     targetConfig[itemData.Key] = val
+                    InvalidatePresetCache()
                     if itemData.RequiresApply then
                         hasPendingChanges = CheckForPendingChanges()
                     end
@@ -305,11 +343,10 @@ local function DrawMainWindow()
     local val, chg = ui.Checkbox("Enable Mod", config.ModEnabled)
     if chg then
         config.ModEnabled = val
-        if not val then
-            Utils.ApplyConfigChanges()
-            SnapshotAppliedState()
-            hasPendingChanges = false
-        end
+        Utils.ApplyConfigChanges()
+        SnapshotAppliedState()
+        hasPendingChanges = false
+        Utils.SetModMarker(val)
     end
     if ui.IsItemHovered() then ui.SetTooltip("Toggle the entire modpack on or off.") end
 
@@ -326,6 +363,7 @@ local function DrawMainWindow()
     ui.BeginChild("TabContentRegion", 0, -35, false)
 
 
+    local currentPreset = EvaluateCurrentPreset()
     if ui.BeginTabBar("ModpackTabs") then
         -- TAB 1: PRESETS & LOADOUT
         if ui.BeginTabItem("Quick Setup") then
@@ -334,7 +372,6 @@ local function DrawMainWindow()
             ui.Spacing()
 
             
-            local currentPreset = EvaluateCurrentPreset()
             ui.PushItemWidth(ui.GetWindowWidth() * 0.45)
             if ui.BeginCombo("Active Preset", currentPreset) then
                 for _, presetName in ipairs(presetOrder) do
@@ -416,7 +453,7 @@ local function DrawMainWindow()
         -- TAB 3: RUN MODIFIERS
         if ui.BeginTabItem("Run Modifiers") then
             ui.Spacing()
-            DrawCheckboxGroup(runModifierLayout, config)
+            DrawCheckboxGroup(runModifierLayout, config.RunModifiers)
             ui.EndTabItem()
         end
 
@@ -427,10 +464,15 @@ local function DrawMainWindow()
             ui.EndTabItem()
         end
 
-        if ui.BeginTabItem("Dev") then
+        if ui.BeginTabItem("QoL Settings") then
             ui.Spacing()
-            local val, chg = ui.Checkbox("Debug Mode", config.DebugMode)
-            if chg then config.DebugMode = val end
+            
+            DrawCheckboxGroup(qolSettingsLayout, config.QoLSettings)
+
+            -- local val, chg 
+
+            -- val, chg = ui.Checkbox("Debug Mode", config.DebugMode)
+            -- if chg then config.DebugMode = val end
             ui.EndTabItem()
         end
 

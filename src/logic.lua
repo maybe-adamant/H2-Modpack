@@ -149,64 +149,21 @@ function Utils.ApplyRoomChanges(roomName, changeCallback)
     end
 end
 
-local BASE62 = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
-local CHUNK_BITS = 30 -- safe margin under 32-bit integer limit
 
-local function EncodeBase62(n)
-    if n == 0 then return "0" end
-    local result = ""
-    while n > 0 do
-        local idx = (n % 62) + 1
-        result = string.sub(BASE62, idx, idx) .. result
-        n = math.floor(n / 62)
-    end
-    return result
-end
-
-local function GetConfigHash()
-    local chunks = {}
-    local chunk = 0
-    local bit = 0
-    local function addFlag(enabled)
-        if enabled then chunk = chunk + (2 ^ bit) end
-        bit = bit + 1
-        if bit >= CHUNK_BITS then
-            table.insert(chunks, chunk)
-            chunk = 0
-            bit = 0
-        end
-    end
-    for _, category in ipairs(Utils.runModifierLayout) do
-        for _, item in ipairs(category.Items) do
-            addFlag(config[item.Key])
-        end
-    end
-    for _, category in ipairs(Utils.bugFixLayout) do
-        for _, item in ipairs(category.Items) do
-            addFlag(config.BugFixes[item.Key])
-        end
-    end
-    if bit > 0 then table.insert(chunks, chunk) end
-
-    local parts = {}
-    for _, c in ipairs(chunks) do
-        table.insert(parts, EncodeBase62(c))
-    end
-    if #parts == 0 then return "0" end
-    return table.concat(parts, ".")
-end
 
 -- =============================================================================
 -- MOD ENGINE HOOKS
 -- =============================================================================
 --Special wrap to reset the forced hammer flag at the start of each run and handle Selene Aspect's initial hex record
+
+
 modutil.mod.Path.Wrap("StartNewRun", function(baseFunc, prevRun, args)
 
     hasForcedHammerThisRun = false
 
     local currentRun = baseFunc(prevRun, args)
-    currentRun.ModpackHash = config.ModEnabled and GetConfigHash() or "OFF"
-    Utils.PrintDebug("Current Modpack Config Hash: " .. tostring(currentRun.ModpackHash))
+
+    -- Utils.ApplyModMark(currentRun)
 
     if config.ModEnabled and config.BugFixes.SeleneFix then
         if HeroHasTrait("SuitHexAspect") then
@@ -284,7 +241,7 @@ modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, ar
         return baseFunc(currentRun, room, args)
     end
     local bannedEnc = nil
-    if config.RTAMode then
+    if config.RunModifiers.RTAMode then
         bannedEnc = {
             ArtemisCombatF = true, ArtemisCombatF2 = true, NemesisCombatF = true,      -- Erebus
             ArtemisCombatG = true, ArtemisCombatG2 = true, NemesisCombatG = true,      -- Oceanus
@@ -298,7 +255,7 @@ modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, ar
             HeraclesCombatP = true,                                                     -- Olympus
         }
     end
-    if config.SurfaceStructureFix and bannedEnc == nil then            
+    if config.RunModifiers.SurfaceStructureFix and bannedEnc == nil then            
         bannedEnc = {
             HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
         }
@@ -384,7 +341,7 @@ end)
 
 --Wrap to stop bosses from dropping gem rewards when using Grave Thirst
 modutil.mod.Path.Wrap("UnusedWeaponBonusDropGems", function(baseFunc, source, args )
-    if config.ModEnabled and config.SkipGemBossReward then
+    if config.ModEnabled and config.RunModifiers.SkipGemBossReward then
         Utils.PrintDebug("UnusedWeaponBonusDropGems called after boss. Skipping gem rewards.")
         return
     end
@@ -397,7 +354,7 @@ end)
 --growth to be visible in tooltips and the like without needing to replicate the logic in multiple places.
 modutil.mod.Path.Wrap("DionysusSkipTrait", function(baseFunc, args, traitData)
     baseFunc(args, traitData)
-    if not config.ModEnabled or not config.EscalatingFigLeaf then return end
+    if not config.ModEnabled or not config.RunModifiers.EscalatingFigLeaf then return end
 
     for _, trait in ipairs(CurrentRun.Hero.Traits) do
         if trait.Name == "PersistentDionysusSkipKeepsake" then
@@ -411,7 +368,7 @@ end)
 
 modutil.mod.Path.Wrap("EndEncounterEffects", function(baseFunc, currentRun, currentRoom, currentEncounter)
     baseFunc(currentRun, currentRoom, currentEncounter)
-    if config.ModEnabled and config.EscalatingFigLeaf then
+    if config.ModEnabled and config.RunModifiers.EscalatingFigLeaf then
         if currentEncounter == currentRoom.Encounter or currentEncounter == MapState.EncounterOverride then
             if HeroHasTrait("PersistentDionysusSkipKeepsake") then
                 local traitData = GetHeroTrait("PersistentDionysusSkipKeepsake")
@@ -426,7 +383,7 @@ end)
 
 modutil.mod.Path.Wrap("StartRoom", function(baseFunc, currentRun, currentRoom)
     baseFunc(currentRun, currentRoom)
-    if config.ModEnabled and config.EscalatingFigLeaf then
+    if config.ModEnabled and config.RunModifiers.EscalatingFigLeaf then
         if currentRoom.BiomeStartRoom then
             if HeroHasTrait("PersistentDionysusSkipKeepsake") then
                 local traitData = GetHeroTrait("PersistentDionysusSkipKeepsake")
@@ -633,24 +590,24 @@ function Utils.ApplyConfigChanges()
         return
     end
 
-    if config.ForceMedea then
+    if config.RunModifiers.ForceMedea then
         AddToBackup(RoomSetData.N.N_Story01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMin = 0
         RoomSetData.N.N_Story01.ForceAtBiomeDepthMax = 1
     end
 
-    if config.ForceArachne then
+    if config.RunModifiers.ForceArachne then
         AddToBackup(RoomSetData.F.F_Story01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
         RoomSetData.F.F_Story01.ForceAtBiomeDepthMin = 4
         RoomSetData.F.F_Story01.ForceAtBiomeDepthMax = 8
     end
 
-    if config.DisableArachnePity then
+    if config.RunModifiers.DisableArachnePity then
         AddToBackup(RoomSetData.F.F_Story01, "ForceIfUnseenForRuns")
         RoomSetData.F.F_Story01.ForceIfUnseenForRuns = nil
     end
 
-    if config.CharybdisBehaviorAdjustment then
+    if config.RunModifiers.CharybdisBehaviorAdjustment then
         AddToBackup(UnitSetData.Charybdis.CharybdisTentacle.AIStages[3], "WaitDuration")
         AddToBackup(WeaponData.CharybdisSpit3.AIData, "FireTicks")
         AddToBackup(WeaponDataEnemies.CharybdisSpit3.AIData, "FireTicks")
@@ -667,7 +624,7 @@ function Utils.ApplyConfigChanges()
         
     end
 
-    if config.PreventEchoScam then
+    if config.RunModifiers.PreventEchoScam then
         AddToBackup(RoomData["H_MiniBoss01"], "GameStateRequirements")
         AddToBackup(RoomData["H_MiniBoss02"], "GameStateRequirements")
         local newReq = {
@@ -692,7 +649,7 @@ function Utils.ApplyConfigChanges()
         -- end
     end
 
-    if config.SurfaceStructureFix then
+    if config.RunModifiers.SurfaceStructureFix then
         AddToBackup(RoomSetData.P.P_Shop01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
         AddToBackup(RoomSetData.O.O_MiniBoss01, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
         AddToBackup(RoomSetData.O.O_MiniBoss02, "ForceAtBiomeDepthMin", "ForceAtBiomeDepthMax")
@@ -728,7 +685,7 @@ function Utils.ApplyConfigChanges()
         end
     end
 
-    if config.DisableSeleneBeforeBoon then
+    if config.RunModifiers.DisableSeleneBeforeBoon then
         AddToBackup(NamedRequirementsData, "SpellDropRequirements")
         local additionalSpellReq = {
             Path = {"CurrentRun", "LootTypeHistory"},

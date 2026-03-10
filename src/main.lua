@@ -34,31 +34,39 @@ sjson = mods['SGG_Modding-SJSON']
 config = chalk.auto('config.lua')
 public.config = config
 
+
 local function ApplyModdedMark()
     local file = rom.path.combine(rom.paths.Content, 'Game/Text/en/HelpText.en.sjson')
-    ScreenData.TraitTrayScreen.ComponentData.RoomCount.TextArgs.VerticalJustification = "Top"
-    ScreenData.TraitTrayScreen.ComponentData.RoomCount.Y = 30  -- default is 60
 
     sjson.hook(file, function(data)
-        for _, v in ipairs(data.Texts) do
-            if v.Id == 'UI_RoomCount' then
-                v.DisplayName =  v.DisplayName .. "\n\n\nModded.{$CurrentRun.ModpackHash}" 
-                break
-            end
-        end
+        -- for _, v in ipairs(data.Texts) do
+        --     if v.Id == 'UI_RoomCount' then
+        --         v.DisplayName =  v.DisplayName .. "{$CurrentRun.ModpackHash}" 
+        --         break
+        --     end
+        -- end
+        -- table.insert(data.Texts, {
+        --     Id = "UI_Adamant_Modpack_Mark",
+        --     DisplayName = "M: {$CurrentRun.ModpackHash}",
+        --     OverwriteLocalization = true,
+        -- })
+
     end)
+
 end
 local function on_ready()
     import_as_fallback(rom.game)
 
     ApplyModdedMark()
     import("def.lua")
+    import("qol.lua")
     import("logic.lua")
 end
 
 local function on_reload()
     import_as_fallback(rom.game)
     import("def.lua")
+    import("qol.lua")
     import("ui.lua")
 end
 

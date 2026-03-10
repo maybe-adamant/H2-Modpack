@@ -8,6 +8,9 @@ Design philosophy is keep the game vanilla but remove some frustrating design ch
 
 Open the mod menu from the **Modpack** entry in the ImGui menu bar and click **Toggle Mod Menu**.
 
+### Mod Marker
+When the mod is enabled, a config hash is displayed on the HUD. This hash encodes your current settings so runs can be verified at a glance. The marker automatically updates when settings change and disappears when the mod is disabled.
+
 ### Master Toggle
 The **Enable Mod** checkbox at the top enables or disables the entire modpack. Disabling it automatically reverts all game data mutations — no restart needed.
 
@@ -26,10 +29,12 @@ The **Enable Mod** checkbox at the top enables or disables the entire modpack. D
 
 4. **Bug Fixes** — Toggle individual bug fixes (see below). Each fix can be enabled or disabled independently.
 
+5. **QoL Settings** — Quality-of-life options for cutscenes, dialogue, and spawn behaviour (see below) - Credit to PonyWarrior for their PonyQoL2 mod.
+
 ### Applying Changes
 Most settings require clicking the **Apply Changes** button (pinned to the bottom of the window) to take effect. The UI shows a warning when you have unapplied changes. Toggling a setting back to its applied state clears the warning automatically.
 
-Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Leaf**, and **Suffering Fix** take effect immediately without needing Apply.
+Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Leaf**, **Suffering Fix**, **Auto Skip Dialogue**, and **Skip End Run Cutscene** take effect immediately without needing Apply.
 
 ## Run Modifiers
 
@@ -73,3 +78,11 @@ Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Le
 * **GGG Echo Fix:** Allows GGG to be offered in Jpom runs.
 * **Miniboss Encounter Fix:** All mini bosses with top screen health bars (Boar, Charybdis, Talos, Typhon Eye/Arm) correctly count toward room encounter depth.
 * **Familiar Spawn Delay Fix:** Familiars spawn immediately upon entering a room.
+
+## QoL Settings
+
+* **Always Show Location Counter:** Permanently displays the room depth counter on the HUD.
+* **Auto Skip Dialogue:** Automatically skips dialogue prompts during gameplay.
+* **Skip End Run Cutscene:** Skips the end-of-run cutscene. 
+* **Skip Death Cutscene:** Skips the death cutscene. 
+* **Spawn in Training Grounds:** Spawns you in the Training Grounds after death instead of the usual respawn area.

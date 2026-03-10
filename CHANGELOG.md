@@ -1,11 +1,16 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.0.13] - 2026-03-10
+
 ### Added
+
 - Several QoL options, including: Death Cutscene skip, Spawn in Training Grounds directly, Auto Skip Dialogue.
 - Credit to PonyWarrior for their PonyQoL2 mod.
 
 ### Fixed
+
 - Mod Marker implementation significantly improved and made independent of other game systems. now toggles when the mod is enabled/disabled
 - Mod now fully applies its config when enabled and revert all changes when disabled.
 
@@ -96,7 +101,8 @@
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.12...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.13...HEAD
+[1.0.13]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.10...1.0.11
 [1.0.10]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.9...1.0.10

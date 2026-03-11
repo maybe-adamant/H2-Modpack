@@ -1,7 +1,11 @@
 # Changelog
 
 ## [Unreleased]
+
+## [1.1.0] - 2026-03-11
+
 ### Added
+
 - QoL option to allow KBM players to pause the game during boon/pom/hex selection menu, PoS menus, and during death sequences.
 
 ## [1.0.13] - 2026-03-10
@@ -103,7 +107,8 @@
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.13...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.13...1.1.0
 [1.0.13]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.11...1.0.12
 [1.0.11]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.10...1.0.11

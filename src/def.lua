@@ -455,7 +455,7 @@ Utils.runModifierLayout = {
 
 Utils.qolSettingsLayout = {
 	{
-		Header = "UI",
+		Header = "QoL",
 		Items = {
 			{
 				Key = "AlwaysShowLocation",
@@ -482,6 +482,10 @@ Utils.qolSettingsLayout = {
 				Name = "Spawn in Training Grounds",
 				Tooltip = "Spawns you in the Training Grounds instead of the House of Hades. Useful for testing and practicing.",
 			},
+			{
+				Key = "KBMEscapeAlt",
+				Name = "Fixing Escape Behavior for KBM",
+				Tooltip = "KBM Escape will now work during boon/pom Selection, Hex selection, PoS menu, and during death sequences.",}
 		},
 	},
 

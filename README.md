@@ -86,3 +86,4 @@ Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Le
 * **Skip End Run Cutscene:** Skips the end-of-run cutscene. 
 * **Skip Death Cutscene:** Skips the death cutscene. 
 * **Spawn in Training Grounds:** Spawns you in the Training Grounds after death instead of the usual respawn area.
+* **Fixing Escape Behavior for KBM:** KBM Escape will now work during boon/pom Selection, Hex selection, PoS menu, and during death sequences

@@ -1,6 +1,8 @@
 # Changelog
 
 ## [Unreleased]
+### Added
+- QoL option to allow KBM players to pause the game during boon/pom/hex selection menu, PoS menus, and during death sequences.
 
 ## [1.0.13] - 2026-03-10
 

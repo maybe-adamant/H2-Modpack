@@ -53,6 +53,7 @@ return {
         RunEndCutscene = true,
         DeathCutScene = true,
         SpawnInTrainingGrounds = true,
+        KBMEscapeAlt = true,
     },
 
     

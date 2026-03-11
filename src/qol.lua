@@ -155,7 +155,6 @@ end
 local currentHash = config.ModEnabled and GetConfigHash() or ""
 local displayedHash = nil
 
--- Inject mod mark into the HUD so it is created/destroyed automatically on every room load
 ScreenData.HUD.ComponentData.ModpackMark = {
     RightOffset = 20,
     Y = 200,
@@ -172,7 +171,6 @@ ScreenData.HUD.ComponentData.ModpackMark = {
         DataProperties = { OpacityWithOwner = true },
     },
 }
-
 
 local function UpdateModMark()
     if not HUDScreen or not HUDScreen.Components.ModpackMark then return end
@@ -217,3 +215,53 @@ function Utils.SetModMarker(enabled)
     UpdateModMark()
 end
 
+
+-- =============================================================================
+-- KBM Pause Blocking
+-- =============================================================================
+
+modutil.mod.Path.Wrap("IsPauseBlocked", function(base)
+    if not config.ModEnabled or not config.QoLSettings.KBMEscapeAlt then
+        return base()
+    end
+    if SessionMapState.HandlingDeath then
+        return false
+    end
+    if SessionMapState.BlockPause then
+		return true
+	end
+
+	if CurrentRun ~= nil then
+		if CurrentRun.Hero.FishingStarted then
+			return true
+		end
+	end
+
+    local excludedScreens = { UpgradeChoice = true, SpellScreen = true, TalentScreen = true, WeaponUpgradeScreen = true }
+    for screenName, screen in pairs( ActiveScreens ) do
+        if excludedScreens[screenName] then
+            return false
+        end
+        if screen.BlockPause then
+            return true
+        end
+    end
+
+	-- @deprecated Use BlockPause value in ScreenData for above
+	local blockingScreens =
+	{
+		"Codex", "MetaUpgrade", "ShrineUpgrade", "MusicPlayer", 
+        "QuestLog", "Mutator", "GhostAdmin", "AwardMenu", "RunClear", 
+        "RunHistory", "GameStats", "TraitTrayScreen", "WeaponUpgradeScreen",
+		"InventoryScreen", "MarketScreen", "WeaponShop",
+		"DebugEnemySpawn", "DebugConversations",
+	}
+	for k, name in pairs( blockingScreens ) do
+		if ActiveScreens[name] then
+			return true
+		end
+	end
+
+	return false
+
+end)

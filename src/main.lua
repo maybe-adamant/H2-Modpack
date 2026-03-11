@@ -45,19 +45,13 @@ local function ApplyModdedMark()
         --         break
         --     end
         -- end
-        -- table.insert(data.Texts, {
-        --     Id = "UI_Adamant_Modpack_Mark",
-        --     DisplayName = "M: {$CurrentRun.ModpackHash}",
-        --     OverwriteLocalization = true,
-        -- })
-
     end)
 
 end
 local function on_ready()
     import_as_fallback(rom.game)
 
-    ApplyModdedMark()
+    -- ApplyModdedMark()
     import("def.lua")
     import("qol.lua")
     import("logic.lua")

@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-03-12
+
 ### Changed
 
 - **Profile system overhaul** — Replaced the old hardcoded preset system (AnyFear/HighFear/RTA defined in code) with a fully user-driven profile manager. Users can now save, load, name, and share their own configurations without editing any files.
@@ -130,7 +132,8 @@
 
 <!-- Versions -->
 
-[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.1.0...HEAD
+[unreleased]: https://github.com/maybe-adamant/H2-Modpack/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/maybe-adamant/H2-Modpack/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.13...1.1.0
 [1.0.13]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.12...1.0.13
 [1.0.12]: https://github.com/maybe-adamant/H2-Modpack/compare/1.0.11...1.0.12

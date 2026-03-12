@@ -167,22 +167,24 @@ local selectedProfileCombo = 0
 local importHashBuffer = ""
 local importFeedback = nil
 local importFeedbackColor = nil
+local excludeHammers = false
+
+local cachedBoolHash = nil
 
 local function GetCachedHash()
     if not cachedHash then
-        cachedHash = Utils.GetConfigHash(staging)
+        cachedHash, cachedBoolHash = Utils.GetConfigHash(staging)
     end
-    return cachedHash
+    return cachedHash, cachedBoolHash
 end
 
 local function InvalidateCache()
     cachedHash = nil
+    cachedBoolHash = nil
 end
 
-local hammersDirty = false
-
 local function HasPendingChanges()
-    return GetCachedHash() ~= appliedHash or hammersDirty
+    return GetCachedHash() ~= appliedHash
 end
 
 local function RebuildSlotLabels()
@@ -202,14 +204,12 @@ local function ApplyChanges()
     CommitStagingToConfig()
     Utils.ApplyConfigChanges()
     appliedHash = GetCachedHash()
-    hammersDirty = false
     Utils.UpdateHash()
 end
 
 local function DiscardChanges()
     SnapshotConfigToStaging()
     InvalidateCache()
-    hammersDirty = false
 end
 
 -- Snapshot the initial state hash (staging == config at this point)
@@ -291,7 +291,7 @@ local function DrawHammerDropdown(weaponKey, displayLabel)
             if ui.Selectable(txt, isSelected) then
                 if i ~= currentIndex then
                     staging.FirstHammers[weaponKey] = data.values[i]
-                    hammersDirty = true
+                    InvalidateCache()
                 end
             end
         end
@@ -474,13 +474,7 @@ local function DrawMainWindow()
 
         if ui.BeginTabItem("QoL") then
             ui.Spacing()
-
             DrawCheckboxGroup(qolSettingsLayout, staging.QoLSettings)
-
-            -- local val, chg 
-
-            -- val, chg = ui.Checkbox("Debug Mode", config.DebugMode)
-            -- if chg then config.DebugMode = val end
             ui.EndTabItem()
         end
         
@@ -493,22 +487,37 @@ local function DrawMainWindow()
             ui.PopStyleColor()
             ui.Indent()
 
-            local currentHash = GetCachedHash()
+            local currentHash, boolHash = GetCachedHash()
             ui.Text("Current Hash:")
             ui.SameLine()
-            DrawColoredText(colors.success, currentHash)
+            DrawColoredText(colors.success, boolHash)
+            local hammerPayload = string.sub(currentHash, #boolHash + 1)
+            if hammerPayload ~= "" then
+                ui.SameLine()
+                DrawColoredText(colors.textDisabled, hammerPayload)
+            end
             ui.SameLine()
             if ui.Button("Copy") then
-                ui.SetClipboardText(currentHash)
+                ui.SetClipboardText(excludeHammers and boolHash or currentHash)
+                importFeedback = "Copied to clipboard!"
+                importFeedbackColor = colors.success
             end
+            ui.SameLine()
+            local val, chg = ui.Checkbox("Exclude Hammers", excludeHammers)
+            if chg then excludeHammers = val end
 
             ui.Spacing()
             ui.Text("Import Hash:")
             ui.SameLine()
-            ui.PushItemWidth(winW * 0.2)
+            ui.PushItemWidth(winW * 0.4)
             local newText, changed = ui.InputText("##ImportHash", importHashBuffer, 256)
             if changed then importHashBuffer = newText end
             ui.PopItemWidth()
+            ui.SameLine()
+            if ui.Button("Paste") then
+                local clip = ui.GetClipboardText()
+                if clip then importHashBuffer = clip end
+            end
             ui.SameLine()
             if ui.Button("Import") then
                 if LoadProfile(importHashBuffer) then
@@ -556,7 +565,7 @@ local function DrawMainWindow()
             -- Name
             ui.Text("Name:")
             ui.SameLine()
-            ui.PushItemWidth(winW * 0.4)
+            ui.PushItemWidth(winW * 0.2)
             local newName, nameChanged = ui.InputText("##SlotName", profile.Name, 64)
             if nameChanged then profile.Name = newName; slotLabelsDirty = true end
             ui.PopItemWidth()
@@ -564,7 +573,7 @@ local function DrawMainWindow()
             -- Tooltip
             ui.Text("Tooltip:")
             ui.SameLine()
-            ui.PushItemWidth(winW * 0.4)
+            ui.PushItemWidth(winW * 0.8)
             local newTooltip, tooltipChanged = ui.InputText("##SlotTooltip", profile.Tooltip, 256)
             if tooltipChanged then profile.Tooltip = newTooltip end
             ui.PopItemWidth()

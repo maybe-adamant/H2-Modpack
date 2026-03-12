@@ -114,46 +114,85 @@ local function EncodeBase62(n)
     return result
 end
 
-local function GetConfigHash(source)
-    local runMod = source and source.RunModifiers or config.RunModifiers
-    local qol = source and source.QoLSettings or config.QoLSettings
-    local bugs = source and source.BugFixes or config.BugFixes
+local HAMMER_BITS = 5
 
-    local chunks = {}
-    local chunk = 0
-    local bit = 0
-    local function addFlag(enabled)
-        if enabled then chunk = chunk + (2 ^ bit) end
-        bit = bit + 1
-        if bit >= CHUNK_BITS then
-            table.insert(chunks, chunk)
-            chunk = 0
-            bit = 0
-        end
-    end
-    for _, category in ipairs(Utils.runModifierLayout) do
-        for _, item in ipairs(category.Items) do
-            addFlag(runMod[item.Key])
-        end
-    end
-    for _, category in ipairs(Utils.qolSettingsLayout) do
-        for _, item in ipairs(category.Items) do
-            addFlag(qol[item.Key])
-        end
-    end
-    for _, category in ipairs(Utils.bugFixLayout) do
-        for _, item in ipairs(category.Items) do
-            addFlag(bugs[item.Key])
-        end
-    end
+local function PackChunks(chunks, chunk, bit)
     if bit > 0 then table.insert(chunks, chunk) end
-
     local parts = {}
     for _, c in ipairs(chunks) do
         table.insert(parts, EncodeBase62(c))
     end
     if #parts == 0 then return "0" end
     return table.concat(parts, ".")
+end
+
+local function GetConfigHash(source)
+    local runMod = source and source.RunModifiers or config.RunModifiers
+    local qol = source and source.QoLSettings or config.QoLSettings
+    local bugs = source and source.BugFixes or config.BugFixes
+    local hammers = source and source.FirstHammers or config.FirstHammers
+
+    local chunks = {}
+    local chunk = 0
+    local bit = 0
+
+    local function addBits(value, numBits)
+        for b = 0, numBits - 1 do
+            if math.floor(value / (2 ^ b)) % 2 == 1 then
+                chunk = chunk + (2 ^ bit)
+            end
+            bit = bit + 1
+            if bit >= CHUNK_BITS then
+                table.insert(chunks, chunk)
+                chunk = 0
+                bit = 0
+            end
+        end
+    end
+
+    -- Boolean flags
+    for _, category in ipairs(Utils.runModifierLayout) do
+        for _, item in ipairs(category.Items) do
+            addBits(runMod[item.Key] and 1 or 0, 1)
+        end
+    end
+    for _, category in ipairs(Utils.qolSettingsLayout) do
+        for _, item in ipairs(category.Items) do
+            addBits(qol[item.Key] and 1 or 0, 1)
+        end
+    end
+    for _, category in ipairs(Utils.bugFixLayout) do
+        for _, item in ipairs(category.Items) do
+            addBits(bugs[item.Key] and 1 or 0, 1)
+        end
+    end
+
+    -- Flush partial bool chunk so boolHash is a clean prefix of fullHash
+    if bit > 0 then
+        table.insert(chunks, chunk)
+        chunk = 0
+        bit = 0
+    end
+    local boolHash = PackChunks(chunks, 0, 0)
+
+    -- Hammer indices
+    for _, aspectName in ipairs(Utils.aspectDrawOrder) do
+        local data = Utils.hammerData[aspectName]
+        local selected = hammers[aspectName] or ""
+        local idx = 0
+        if data then
+            for i, val in ipairs(data.values) do
+                if val == selected then
+                    idx = i - 1
+                    break
+                end
+            end
+        end
+        addBits(idx, HAMMER_BITS)
+    end
+
+    local fullHash = PackChunks(chunks, chunk, bit)
+    return fullHash, boolHash
 end
 
 local function DecodeBase62(str)
@@ -182,37 +221,62 @@ function Utils.ApplyConfigHash(hash, target)
     local runMod = target and target.RunModifiers or config.RunModifiers
     local qol = target and target.QoLSettings or config.QoLSettings
     local bugs = target and target.BugFixes or config.BugFixes
+    local hammers = target and target.FirstHammers or config.FirstHammers
 
-    -- Extract bits in the same order as GetConfigHash
     local chunkIdx = 1
     local chunk = chunks[1]
     local bit = 0
 
-    local function readFlag()
-        if chunkIdx > #chunks then return false end
-        local val = (math.floor(chunk / (2 ^ bit)) % 2) == 1
-        bit = bit + 1
-        if bit >= CHUNK_BITS then
-            chunkIdx = chunkIdx + 1
-            chunk = chunks[chunkIdx] or 0
-            bit = 0
+    local function readBits(numBits)
+        local val = 0
+        for b = 0, numBits - 1 do
+            if chunkIdx <= #chunks then
+                if math.floor(chunk / (2 ^ bit)) % 2 == 1 then
+                    val = val + (2 ^ b)
+                end
+                bit = bit + 1
+                if bit >= CHUNK_BITS then
+                    chunkIdx = chunkIdx + 1
+                    chunk = chunks[chunkIdx] or 0
+                    bit = 0
+                end
+            end
         end
         return val
     end
 
+    -- Boolean flags
     for _, category in ipairs(Utils.runModifierLayout) do
         for _, item in ipairs(category.Items) do
-            runMod[item.Key] = readFlag()
+            runMod[item.Key] = readBits(1) == 1
         end
     end
     for _, category in ipairs(Utils.qolSettingsLayout) do
         for _, item in ipairs(category.Items) do
-            qol[item.Key] = readFlag()
+            qol[item.Key] = readBits(1) == 1
         end
     end
     for _, category in ipairs(Utils.bugFixLayout) do
         for _, item in ipairs(category.Items) do
-            bugs[item.Key] = readFlag()
+            bugs[item.Key] = readBits(1) == 1
+        end
+    end
+
+    -- Skip remaining bits in the last bool chunk (mirrors encoder flush)
+    if bit > 0 then
+        chunkIdx = chunkIdx + 1
+        chunk = chunks[chunkIdx] or 0
+        bit = 0
+    end
+
+    -- Hammer indices (only if hash has enough data)
+    if chunkIdx <= #chunks then
+        for _, aspectName in ipairs(Utils.aspectDrawOrder) do
+            local data = Utils.hammerData[aspectName]
+            local idx = readBits(HAMMER_BITS)
+            if data and idx < #data.values then
+                hammers[aspectName] = data.values[idx + 1]
+            end
         end
     end
 
@@ -222,7 +286,8 @@ function Utils.ApplyConfigHash(hash, target)
     return true
 end
 
-local currentHash = config.ModEnabled and GetConfigHash() or ""
+local _, initBoolHash = GetConfigHash()
+local currentHash = config.ModEnabled and initBoolHash or ""
 local displayedHash = nil
 
 ScreenData.HUD.ComponentData.ModpackMark = {
@@ -274,17 +339,24 @@ modutil.mod.Path.Wrap("ShowHealthUI", function(base)
 end)
 
 function Utils.GetConfigHash(source)
-    return GetConfigHash(source)
+    local fullHash, boolHash = GetConfigHash(source)
+    return fullHash, boolHash
 end
 
 function Utils.UpdateHash()
-    currentHash = GetConfigHash()
+    local _, boolHash = GetConfigHash()
+    currentHash = boolHash
     UpdateModMark()
 end
 
 function Utils.SetModMarker(enabled)
-    currentHash = enabled and GetConfigHash() or ""
-    print("Modpack " .. (enabled and "enabled" or "disabled") .. ". Current config hash: " .. currentHash)
+    if enabled then
+        local _, boolHash = GetConfigHash()
+        currentHash = boolHash
+    else
+        currentHash = ""
+    end
+    print("Mod Marker set to: " .. currentHash)
     displayedHash = nil
     UpdateModMark()
 end
@@ -311,7 +383,7 @@ modutil.mod.Path.Wrap("IsPauseBlocked", function(base)
 		end
 	end
 
-    local excludedScreens = { UpgradeChoice = true, SpellScreen = true, TalentScreen = true, WeaponUpgradeScreen = true }
+    local excludedScreens = { UpgradeChoice = true, SpellScreen = true, TalentScreen = true }
     for screenName, screen in pairs( ActiveScreens ) do
         if excludedScreens[screenName] then
             return false

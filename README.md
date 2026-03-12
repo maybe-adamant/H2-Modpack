@@ -9,19 +9,14 @@ Design philosophy is keep the game vanilla but remove some frustrating design ch
 Open the mod menu from the **Modpack** entry in the ImGui menu bar and click **Toggle Mod Menu**.
 
 ### Mod Marker
-When the mod is enabled, a config hash is displayed on the HUD. This hash encodes your current settings so runs can be verified at a glance. The marker automatically updates when settings change and disappears when the mod is disabled.
+When the mod is enabled, a config hash is displayed on the HUD. This hash encodes your current boolean settings (run modifiers, bug fixes, QoL) so runs can be verified at a glance. Hammer selections are excluded from the HUD hash to keep it short. The marker automatically updates when settings are applied and disappears when the mod is disabled.
 
 ### Master Toggle
 The **Enable Mod** checkbox at the top enables or disables the entire modpack. Disabling it automatically reverts all game data mutations — no restart needed.
 
 ### Tabs
 
-1. **Quick Setup** — Pick a preset to configure the modpack in one click:
-   - **AnyFear** — RTA disabled, Arachne pity disabled. For anyfear routing.
-   - **HighFear** — RTA disabled, Arachne spawn forced. For highfear routing.
-   - **RTA** — RTA enabled, all-weapons routing.
-   - The dropdown auto-detects your current settings. If you manually tweak individual options it shows **Custom**.
-   - Also includes quick toggles for all bug fixes (Enable All / Disable All) and a hammer selector for your currently equipped aspect.
+1. **Quick Setup** — Load a saved profile to configure the modpack in one click. Select a profile from the dropdown and click **Load** to apply it. Only populated profiles are shown.
 
 2. **Hammers** — Select a guaranteed first hammer for each weapon aspect. Organized by weapon, with collapsible sections per aspect. If the selected hammer is ineligible due to weapon aspects or other conditions, the game defaults to vanilla random selection.
 
@@ -29,12 +24,17 @@ The **Enable Mod** checkbox at the top enables or disables the entire modpack. D
 
 4. **Bug Fixes** — Toggle individual bug fixes (see below). Each fix can be enabled or disabled independently.
 
-5. **QoL Settings** — Quality-of-life options for cutscenes, dialogue, and spawn behaviour (see below) - Credit to PonyWarrior for their PonyQoL2 mod.
+5. **QoL** — Quality-of-life options for cutscenes, dialogue, and spawn behaviour (see below). Credit to PonyWarrior for their PonyQoL2 mod.
+
+6. **Profiles** — Export, import, and manage saved configurations:
+   - **Export / Import** — View your current config hash (settings shown in green, hammer selections in gray). Copy the full hash to share with others, or paste one in to import. Importing a short hash (without hammers) only updates toggles and leaves your hammer selections unchanged.
+   - **Saved Profiles** — 10 profile slots. Save your current settings to a slot with a name and optional tooltip, load a slot to restore settings, or clear a slot. Use **Restore Default Profiles** to reset all slots to the shipped defaults (AnyFear, HighFear, RTA).
 
 ### Applying Changes
-Most settings require clicking the **Apply Changes** button (pinned to the bottom of the window) to take effect. The UI shows a warning when you have unapplied changes. Toggling a setting back to its applied state clears the warning automatically.
+All changes are staged as a draft. Nothing takes effect until you click **Apply Changes** (pinned to the bottom of the window). Click **Discard** to revert to the last applied state. The UI shows a warning when you have unapplied changes.
 
-Live settings like **RTA Mode**, **Skip Gem Boss Reward**, **Incrementing Fig Leaf**, **Suffering Fix**, **Auto Skip Dialogue**, and **Skip End Run Cutscene** take effect immediately without needing Apply.
+### Config Hash
+Every combination of settings produces a unique short code (e.g. `1AfB0v.3.a2.xQ`). The first part represents your toggle settings, and the rest represents your hammer selections. You can copy this code and share it with others — they paste it into the Import field to get the exact same setup. If someone shares a shorter code (toggles only, no hammers), importing it will update the toggles but leave your hammer choices as they are.
 
 ## Run Modifiers
 

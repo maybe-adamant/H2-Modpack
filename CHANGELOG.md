@@ -2,6 +2,29 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Profile system overhaul** — Replaced the old hardcoded preset system (AnyFear/HighFear/RTA defined in code) with a fully user-driven profile manager. Users can now save, load, name, and share their own configurations without editing any files.
+- **Draft/commit model** — All setting changes are now staged as a draft. Nothing takes effect until the user clicks **Apply Changes**. A **Discard** button reverts to the last applied state. This replaces the old behavior where some settings applied immediately and others required Apply.
+- **Config hash now includes hammer selections** — The hash encoding has been extended to capture both boolean settings and first hammer choices. The HUD marker continues to show only the short boolean hash for readability.
+
+### Added
+
+- **Profiles tab** — New dedicated tab for profile management:
+  - Export/Import with Copy and Paste buttons for fully mouse-driven workflow
+  - 10 saveable profile slots with custom names and tooltips
+  - Restore Default Profiles button to reset slots to shipped defaults
+  - "Exclude Hammers" checkbox on Copy to share toggle-only codes
+- **Quick Setup tab** — Dropdown lists only populated profiles. Select and click Load to apply a saved profile in one click.
+- **Two-tone hash display** — Export view shows boolean settings in green and hammer payload in gray, making it clear which part of the code is which.
+- Mod marker now appears on game load (previously only showed after first Apply).
+
+### Removed
+
+- Hardcoded preset definitions — replaced by user-managed profiles.
+- Auto-detection of "Custom" preset state — replaced by simple hash comparison.
+- Per-setting live apply behavior — all settings now go through the draft/commit flow.
+
 ## [1.1.0] - 2026-03-11
 
 ### Added

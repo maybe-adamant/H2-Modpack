@@ -897,6 +897,5 @@ function Utils.ApplyConfigChanges()
 end
 
 if config.ModEnabled then
-
     Utils.ApplyConfigChanges()
-end 
+end

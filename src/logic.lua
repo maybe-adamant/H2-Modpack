@@ -59,22 +59,28 @@ function Utils.PrintDebug(...)
     end
 end
 
-
 function Utils.GetEquippedAspect()
-    local currentWeapon = Utils.GetEquippedWeapon()
-
-    local possibleAspects = Utils.WeaponAspectMapping[currentWeapon]
-
-    if not possibleAspects then return "BaseStaffAspect" end
-
-    for _, aspectName in ipairs(possibleAspects) do
-        if HeroHasTrait(aspectName) then
-            return aspectName
-        end
-    end
-
-    return possibleAspects[1] 
+    local currentWeapon = CurrentRun and CurrentRun.Hero 
+                        and CurrentRun.Hero.SlottedTraits and CurrentRun.Hero.SlottedTraits.Aspect or "BaseStaffAspect"
+    return currentWeapon
 end
+
+
+-- function Utils.GetEquippedAspect()
+--     local currentWeapon = Utils.GetEquippedWeapon()
+
+--     local possibleAspects = Utils.WeaponAspectMapping[currentWeapon]
+
+--     if not possibleAspects then return "BaseStaffAspect" end
+
+--     for _, aspectName in ipairs(possibleAspects) do
+--         if HeroHasTrait(aspectName) then
+--             return aspectName
+--         end
+--     end
+
+--     return possibleAspects[1] 
+-- end
 
 
 

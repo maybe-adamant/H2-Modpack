@@ -114,7 +114,11 @@ local function EncodeBase62(n)
     return result
 end
 
-local function GetConfigHash()
+local function GetConfigHash(source)
+    local runMod = source and source.RunModifiers or config.RunModifiers
+    local qol = source and source.QoLSettings or config.QoLSettings
+    local bugs = source and source.BugFixes or config.BugFixes
+
     local chunks = {}
     local chunk = 0
     local bit = 0
@@ -129,17 +133,17 @@ local function GetConfigHash()
     end
     for _, category in ipairs(Utils.runModifierLayout) do
         for _, item in ipairs(category.Items) do
-            addFlag(config.RunModifiers[item.Key])
+            addFlag(runMod[item.Key])
         end
     end
     for _, category in ipairs(Utils.qolSettingsLayout) do
         for _, item in ipairs(category.Items) do
-            addFlag(config.QoLSettings[item.Key])
+            addFlag(qol[item.Key])
         end
     end
     for _, category in ipairs(Utils.bugFixLayout) do
         for _, item in ipairs(category.Items) do
-            addFlag(config.BugFixes[item.Key])
+            addFlag(bugs[item.Key])
         end
     end
     if bit > 0 then table.insert(chunks, chunk) end
@@ -150,6 +154,72 @@ local function GetConfigHash()
     end
     if #parts == 0 then return "0" end
     return table.concat(parts, ".")
+end
+
+local function DecodeBase62(str)
+    local n = 0
+    for i = 1, #str do
+        local c = string.sub(str, i, i)
+        local idx = string.find(BASE62, c, 1, true)
+        if not idx then return nil end
+        n = n * 62 + (idx - 1)
+    end
+    return n
+end
+
+function Utils.ApplyConfigHash(hash, target)
+    if not hash or hash == "" then return false end
+
+    -- Split on "." into chunks and decode each from Base62
+    local chunks = {}
+    for part in string.gmatch(hash, "[^%.]+") do
+        local decoded = DecodeBase62(part)
+        if not decoded then return false end
+        table.insert(chunks, decoded)
+    end
+    if #chunks == 0 then return false end
+
+    local runMod = target and target.RunModifiers or config.RunModifiers
+    local qol = target and target.QoLSettings or config.QoLSettings
+    local bugs = target and target.BugFixes or config.BugFixes
+
+    -- Extract bits in the same order as GetConfigHash
+    local chunkIdx = 1
+    local chunk = chunks[1]
+    local bit = 0
+
+    local function readFlag()
+        if chunkIdx > #chunks then return false end
+        local val = (math.floor(chunk / (2 ^ bit)) % 2) == 1
+        bit = bit + 1
+        if bit >= CHUNK_BITS then
+            chunkIdx = chunkIdx + 1
+            chunk = chunks[chunkIdx] or 0
+            bit = 0
+        end
+        return val
+    end
+
+    for _, category in ipairs(Utils.runModifierLayout) do
+        for _, item in ipairs(category.Items) do
+            runMod[item.Key] = readFlag()
+        end
+    end
+    for _, category in ipairs(Utils.qolSettingsLayout) do
+        for _, item in ipairs(category.Items) do
+            qol[item.Key] = readFlag()
+        end
+    end
+    for _, category in ipairs(Utils.bugFixLayout) do
+        for _, item in ipairs(category.Items) do
+            bugs[item.Key] = readFlag()
+        end
+    end
+
+    if not target then
+        Utils.UpdateHash()
+    end
+    return true
 end
 
 local currentHash = config.ModEnabled and GetConfigHash() or ""
@@ -202,6 +272,10 @@ modutil.mod.Path.Wrap("ShowHealthUI", function(base)
         end
     end
 end)
+
+function Utils.GetConfigHash(source)
+    return GetConfigHash(source)
+end
 
 function Utils.UpdateHash()
     currentHash = GetConfigHash()

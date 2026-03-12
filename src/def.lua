@@ -213,60 +213,6 @@ for _, weaponName in ipairs(Utils.weaponDrawOrder) do
 end
 
 -- =============================================================================
--- PRESET DEFINITIONS
--- =============================================================================
-
-Utils.presetOrder = { "AnyFear", "HighFear", "RTA" }
-
-Utils.presetDefinitions = {
-	AnyFear = {
-		tooltip = "RTA Disabled. Arachne Pity Disabled.",
-		RunModifiers = {
-			RTAMode = false,
-			SkipGemBossReward = false,
-			EscalatingFigLeaf = true,
-			ForceMedea = true,
-			ForceArachne = false,
-			DisableArachnePity = true,
-			CharybdisBehaviorAdjustment = true,
-			PreventEchoScam = true,
-			SurfaceStructureFix = true,
-			DisableSeleneBeforeBoon = true,
-		},
-	},
-	HighFear = {
-		tooltip = "RTA Disabled. Arachne Spawn Forced.",
-		RunModifiers = {
-			RTAMode = false,
-			SkipGemBossReward = false,
-			EscalatingFigLeaf = true,
-			ForceMedea = true,
-			ForceArachne = true,
-			DisableArachnePity = false,
-			CharybdisBehaviorAdjustment = true,
-			PreventEchoScam = true,
-			SurfaceStructureFix = true,
-			DisableSeleneBeforeBoon = true,
-		},
-	},
-	RTA = {
-		tooltip = "RTA Enabled. Arachne Pity Enabled. Medea/Arachne Spawns Not Forced.",
-		RunModifiers = {
-			RTAMode = true,
-			SkipGemBossReward = true,
-			EscalatingFigLeaf = true,
-			ForceMedea = false,
-			ForceArachne = false,
-			DisableArachnePity = true,
-			CharybdisBehaviorAdjustment = true,
-			PreventEchoScam = true,
-			SurfaceStructureFix = true,
-			DisableSeleneBeforeBoon = true,
-		},
-	},
-}
-
--- =============================================================================
 -- UI LAYOUT DEFINITIONS
 -- =============================================================================
 
@@ -452,7 +398,6 @@ Utils.runModifierLayout = {
 		},
 	},
 }
-
 Utils.qolSettingsLayout = {
 	{
 		Header = "QoL",
@@ -489,4 +434,15 @@ Utils.qolSettingsLayout = {
 		},
 	},
 
+}
+
+-- =============================================================================
+-- DEFAULT PROFILES (shipped with mod — user can reset to these)
+-- =============================================================================
+Utils.NUM_PROFILES = 10
+
+Utils.defaultProfiles = {
+	{ Name = "AnyFear", 	Hash = "1AfB0V.3", Tooltip = "RTA Disabled. Arachne Pity Disabled" },
+	{ Name = "HighFear", 	Hash = "1AfB0t.3", Tooltip = "RTA Disabled. Arachne Spawn Forced" },
+	{ Name = "RTA", 		Hash = "1AfB20.3", Tooltip = "RTA Enabled. Arachne Pity Enabled. Medea/Arachne Spawns Not Forced" },
 }

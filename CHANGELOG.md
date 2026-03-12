@@ -4,6 +4,7 @@
 
 ### Changed
 - Updated readme/tooltips for better readability and more through explanations
+- minor performance improvements/code optimizations
 
 ## [1.2.0] - 2026-03-12
 

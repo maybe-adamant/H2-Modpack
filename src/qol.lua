@@ -53,7 +53,7 @@ modutil.mod.Path.Context.Wrap("KillHero", function(base, victim, triggerArgs)
             base(argTable)
             return
         end
-        rom.log.warning(argTable.Name)
+        -- rom.log.warning(argTable.Name)
         if argTable.Name == "Hub_Main" then -- Realistically we don't want to accidentally break any other cutscenes (mini mel)
             argTable.Name = "Hub_PreRun"
         end
@@ -85,7 +85,7 @@ modutil.mod.Path.Wrap("PlayTextLines", function(base, source, textLines, args)
 
     if textLines.PrePortraitExitFunctionName then
         -- special NPCs has a choice exit function
-        hasChoice, _ = string.find(textLines.PrePortraitExitFunctionName, 'Choice')
+        local hasChoice, _ = string.find(textLines.PrePortraitExitFunctionName, 'Choice')
         if hasChoice then
             return base(source, textLines, args)
         end
@@ -295,7 +295,7 @@ ScreenData.HUD.ComponentData.ModpackMark = {
     Y = 200,
     TextArgs = {
         Text = "",
-        Font = "P22UndergroundSCMedium",
+        Font = "MonospaceTypewriterBold",
         FontSize = 18,
         Color = Color.White,
         ShadowRed = 0.1, ShadowBlue = 0.1, ShadowGreen = 0.1,
@@ -356,7 +356,6 @@ function Utils.SetModMarker(enabled)
     else
         currentHash = ""
     end
-    print("Mod Marker set to: " .. currentHash)
     displayedHash = nil
     UpdateModMark()
 end

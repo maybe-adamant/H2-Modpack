@@ -161,15 +161,25 @@ local appliedHash = nil
 local cachedHash = nil
 local slotLabels = {}
 local slotOccupied = {}
+local slotTooltips = {}
+local slotHashes = {}
 local slotLabelsDirty = true
 local selectedProfileSlot = 1
 local selectedProfileCombo = 0
 local importHashBuffer = ""
 local importFeedback = nil
 local importFeedbackColor = nil
+local importFeedbackTime = nil
 local excludeHammers = false
 
 local cachedBoolHash = nil
+
+local FEEDBACK_DURATION = 2.0
+local function SetImportFeedback(text, color)
+    importFeedback = text
+    importFeedbackColor = color
+    importFeedbackTime = os.clock()
+end
 
 local function GetCachedHash()
     if not cachedHash then
@@ -191,6 +201,8 @@ local function RebuildSlotLabels()
     for i, p in ipairs(config.Profiles) do
         local hasName = p.Name ~= ""
         slotOccupied[i] = hasName
+        slotTooltips[i] = p.Tooltip or ""
+        slotHashes[i] = p.Hash or ""
         if hasName then
             slotLabels[i] = i .. ": " .. p.Name
         else
@@ -379,8 +391,8 @@ local function DrawMainWindow()
                             selectedProfileCombo = i
                         end
                         if ui.IsItemHovered() then
-                            local tip = config.Profiles[i].Tooltip
-                            if tip and tip ~= "" then
+                            local tip = slotTooltips[i]
+                            if tip ~= "" then
                                 ui.SetTooltip(tip)
                             end
                         end
@@ -394,8 +406,8 @@ local function DrawMainWindow()
             ui.SameLine()
             local sel = selectedProfileCombo
             if sel > 0 and sel <= NUM_PROFILES then
-                local hash = config.Profiles[sel].Hash
-                if hash and hash ~= "" then
+                local hash = slotHashes[sel]
+                if hash ~= "" then
                     if ui.Button("Load") then
                         LoadProfile(hash)
                     end
@@ -499,8 +511,7 @@ local function DrawMainWindow()
             ui.SameLine()
             if ui.Button("Copy") then
                 ui.SetClipboardText(excludeHammers and boolHash or currentHash)
-                importFeedback = "Copied to clipboard!"
-                importFeedbackColor = colors.success
+                SetImportFeedback("Copied to clipboard!", colors.success)
             end
             ui.SameLine()
             local val, chg = ui.Checkbox("Exclude Hammers", excludeHammers)
@@ -521,16 +532,18 @@ local function DrawMainWindow()
             ui.SameLine()
             if ui.Button("Import") then
                 if LoadProfile(importHashBuffer) then
-                    importFeedback = "Imported successfully!"
-                    importFeedbackColor = colors.success
+                    SetImportFeedback("Imported successfully!", colors.success)
                 else
-                    importFeedback = "Invalid hash."
-                    importFeedbackColor = colors.error
+                    SetImportFeedback("Invalid hash.", colors.error)
                 end
             end
             if importFeedback then
-                ui.SameLine()
-                DrawColoredText(importFeedbackColor, importFeedback)
+                if os.clock() - importFeedbackTime > FEEDBACK_DURATION then
+                    importFeedback = nil
+                else
+                    ui.SameLine()
+                    DrawColoredText(importFeedbackColor, importFeedback)
+                end
             end
 
             ui.Unindent()
@@ -575,7 +588,7 @@ local function DrawMainWindow()
             ui.SameLine()
             ui.PushItemWidth(winW * 0.8)
             local newTooltip, tooltipChanged = ui.InputText("##SlotTooltip", profile.Tooltip, 256)
-            if tooltipChanged then profile.Tooltip = newTooltip end
+            if tooltipChanged then profile.Tooltip = newTooltip; slotLabelsDirty = true end
             ui.PopItemWidth()
 
             -- Hash display
@@ -608,6 +621,9 @@ local function DrawMainWindow()
                     profile.Tooltip = ""
                     slotLabelsDirty = true
                 end
+                if ui.IsItemHovered() then
+                    ui.SetTooltip("Permanently clears this profile slot.")
+                end
             end
 
             ui.Unindent()
@@ -633,7 +649,7 @@ local function DrawMainWindow()
                 slotLabelsDirty = true
             end
             if ui.IsItemHovered() then
-                ui.SetTooltip("Reset all profile slots to the shipped defaults.")
+                ui.SetTooltip("Overwrites ALL profile slots with the shipped defaults. Custom profiles will be lost.")
             end
 
             ui.Spacing()

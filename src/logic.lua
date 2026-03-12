@@ -246,27 +246,23 @@ modutil.mod.Path.Wrap("ChooseEncounter", function(baseFunc, currentRun, room, ar
     if not config.ModEnabled then
         return baseFunc(currentRun, room, args)
     end
-    local bannedEnc = nil
+    local bannedEnc = {}
     if config.RunModifiers.RTAMode then
-        bannedEnc = {
-            ArtemisCombatF = true, ArtemisCombatF2 = true, NemesisCombatF = true,      -- Erebus
-            ArtemisCombatG = true, ArtemisCombatG2 = true, NemesisCombatG = true,      -- Oceanus
-            NemesisCombatH = true,                                                      -- Fields
-            NemesisCombatI = true,                                                      -- Tartarus
-            ArtemisCombatN = true, ArtemisCombatN2 = true,                             -- Ephyra
-            HeraclesCombatN = true, HeraclesCombatN2 = true,                           -- Ephyra
-            IcarusCombatO = true, IcarusCombatO2 = true,                               -- Thessaly
-            HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
-            AthenaCombatP = true, AthenaCombatP02 = true, IcarusCombatP = true,        -- Olympus
-            HeraclesCombatP = true,                                                     -- Olympus
-        }
+        bannedEnc.ArtemisCombatF = true;  bannedEnc.ArtemisCombatF2 = true;  bannedEnc.NemesisCombatF = true      -- Erebus
+        bannedEnc.ArtemisCombatG = true;  bannedEnc.ArtemisCombatG2 = true;  bannedEnc.NemesisCombatG = true      -- Oceanus
+        bannedEnc.NemesisCombatH = true                                                                            -- Fields
+        bannedEnc.NemesisCombatI = true                                                                            -- Tartarus
+        bannedEnc.ArtemisCombatN = true;  bannedEnc.ArtemisCombatN2 = true                                        -- Ephyra
+        bannedEnc.HeraclesCombatN = true; bannedEnc.HeraclesCombatN2 = true                                       -- Ephyra
+        bannedEnc.IcarusCombatO = true;   bannedEnc.IcarusCombatO2 = true                                         -- Thessaly
+        bannedEnc.HeraclesCombatO = true; bannedEnc.HeraclesCombatO2 = true                                       -- Thessaly
+        bannedEnc.AthenaCombatP = true;   bannedEnc.AthenaCombatP02 = true;  bannedEnc.IcarusCombatP = true       -- Olympus
+        bannedEnc.HeraclesCombatP = true                                                                           -- Olympus
     end
-    if config.RunModifiers.SurfaceStructureFix and bannedEnc == nil then            
-        bannedEnc = {
-            HeraclesCombatO = true, HeraclesCombatO2 = true,                           -- Thessaly
-        }
+    if config.RunModifiers.SurfaceStructureFix then
+        bannedEnc.HeraclesCombatO = true; bannedEnc.HeraclesCombatO2 = true                                       -- Thessaly
     end
-    if bannedEnc == nil then
+    if not next(bannedEnc) then
         return baseFunc(currentRun, room, args)
     end
 
@@ -317,7 +313,7 @@ modutil.mod.Path.Wrap("CreateSecondAnubisWall", function( baseFunc, weaponData, 
     local fixedOffsetX = baseX + gapX
     local fixedOffsetY = baseY + gapY
 
-    local projectileId = CreateProjectileFromUnit({ 
+    local _ = CreateProjectileFromUnit({ 
         WeaponName = weaponName, 
         Name = projectileName,
         OffsetX = fixedOffsetX,
@@ -783,9 +779,12 @@ function Utils.ApplyConfigChanges()
 
     if config.BugFixes.SeleneFix then
         AddToBackup(NamedRequirementsData, "SpellDropRequirements")
-        table.insert(NamedRequirementsData.SpellDropRequirements, {
+        local seleneReq = {
             PathFalse = { "CurrentRun", "Hero", "TraitDictionary", "SuitHexAspect" }
-        })
+        }
+        if not ListContainsEquivalent(NamedRequirementsData.SpellDropRequirements, seleneReq) then
+            table.insert(NamedRequirementsData.SpellDropRequirements, seleneReq)
+        end
     end
 
     if config.BugFixes.ShimmeringFix then
@@ -858,8 +857,18 @@ function Utils.ApplyConfigChanges()
             args.MultihitProjectileConditions.ProjectileTorchOrbit = { Cooldown = 0.01 }
         end)
     end
-
     if config.BugFixes.FamiliarDelayFix then
+        local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
+        for _, event in ipairs(unblocked) do
+            if event.FunctionName == "FamiliarSetup" then
+                AddToBackup(event, "Args")
+                event.Args = {}
+                break
+            end
+        end
+    end
+
+    -- if config.BugFixes.FamiliarDelayFix then
         -- AddToBackup(RoomEventData, "GlobalRoomStartEvents")
         -- AddToBackup(RoomEventData, "GlobalRoomInputUnblockedEvents")
         -- table.insert(RoomEventData.GlobalRoomStartEvents, {
@@ -876,22 +885,9 @@ function Utils.ApplyConfigChanges()
         --         table.remove(unblocked, i)
         --     end
         -- end
+    -- end
 
 
-        if config.BugFixes.FamiliarDelayFix then
-            local unblocked = RoomEventData.GlobalRoomInputUnblockedEvents
-            for _, event in ipairs(unblocked) do
-                if event.FunctionName == "FamiliarSetup" then
-                    AddToBackup(event, "Args")
-                    event.Args = {}
-                    break
-                end
-            end
-        end
-
-
-
-    end
 
     SetupRunData()
 end

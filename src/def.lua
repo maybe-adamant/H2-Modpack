@@ -234,7 +234,7 @@ Utils.bugFixLayout = {
 			},
 			{
 				Key = "StagedOmegaFix",
-				Name = "Staged Omega Fix",
+				Name = "Axe and Blade Omega Channel Fix",
 				Tooltip = "Fixes Axe OAtk, Blade OSpec not benefiting correctly from channeling bonus.",
 				RequiresApply = true,
 			},
@@ -263,7 +263,7 @@ Utils.bugFixLayout = {
 			},
 			{
 				Key = "SecondStageChannelingFix",
-				Name = "Second Stage Channeling Fix",
+				Name = "Remove Second Channeling",
 				Tooltip = "Removes 2nd stage channel of Glorious Disaster/Giga Moonburst, baking bonus into stage 1.",
 				RequiresApply = true,
 			},

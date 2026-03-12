@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
+- Updated readme/tooltips for better readability and more through explanations
+
 ## [1.2.0] - 2026-03-12
 
 ### Changed

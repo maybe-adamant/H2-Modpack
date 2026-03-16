@@ -4,7 +4,7 @@
 src/manifest.json
 src/LICENSE
 src/icon.png
-
+src/~oldfile_backup
 packages/
 ThunderstoreCLI/
 build/

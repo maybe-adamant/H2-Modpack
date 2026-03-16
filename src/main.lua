@@ -26,7 +26,6 @@ chalk = mods["SGG_Modding-Chalk"]
 ---@module 'SGG_Modding-ReLoad'
 reload = mods['SGG_Modding-ReLoad']
 
-
 ---@module 'SGG_Modding-SJSON'
 sjson = mods['SGG_Modding-SJSON']
 
@@ -35,35 +34,49 @@ config = chalk.auto('config.lua')
 public.config = config
 
 
-local function ApplyModdedMark()
-    local file = rom.path.combine(rom.paths.Content, 'Game/Text/en/HelpText.en.sjson')
-
-    sjson.hook(file, function(data)
-        -- for _, v in ipairs(data.Texts) do
-        --     if v.Id == 'UI_RoomCount' then
-        --         v.DisplayName =  v.DisplayName .. "{$CurrentRun.ModpackHash}" 
-        --         break
-        --     end
-        -- end
-    end)
-
-end
 local function on_ready()
     import_as_fallback(rom.game)
 
-    -- ApplyModdedMark()
-    import("def.lua")
-    import("qol.lua")
-    import("victory.lua")
-    import("logic.lua")
+    -- 1. Core infrastructure
+    import 'utils.lua'
+    import 'def.lua'
+    import 'coordinator/registry.lua'
+    import 'coordinator/backup.lua'
+
+    -- 2. Register all modules (self-register into Registry)
+    import 'modules/init.lua'
+
+    -- 3. Hook coordinator (registers all wraps with modutil)
+    import 'coordinator/hooks.lua'
+    Utils.Hooks.RegisterAll()
+
+    -- 4. Hammer hooks (special module, not in registry)
+    Utils.RegisterHammerHooks()
+
+    -- 5. HUD system (mod mark, depth counter, hash encoding)
+    import 'hud.lua'
+
+    -- 6. Apply config orchestrator
+    import 'coordinator/apply.lua'
+
+    -- 7. Apply initial config
+    if config.ModEnabled then
+        Utils.ApplyConfigChanges()
+    end
 end
 
 local function on_reload()
     import_as_fallback(rom.game)
-    import("def.lua")
-    import("qol.lua")
-    import("victory.lua")
-    import("ui.lua")
+
+    import 'utils.lua'
+    import 'def.lua'
+    import 'coordinator/registry.lua'
+    import 'coordinator/backup.lua'
+    import 'modules/init.lua'
+    import 'coordinator/hooks.lua'
+    import 'hud.lua'
+    import 'coordinator/apply.lua'
+    import 'ui.lua'
 end
 
 local loader = reload.auto_single()

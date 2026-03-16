@@ -75,9 +75,15 @@ local ImGuiTreeNodeFlags = {
 }
 
 
-local bugFixLayout = Utils.bugFixLayout
-local runModifierLayout = Utils.runModifierLayout
-local qolSettingsLayout = Utils.qolSettingsLayout
+local Registry = Utils.Registry
+local categories = Registry:getCategories()
+
+-- Pre-build layout data for each category
+local categoryLayouts = {}
+for _, cat in ipairs(categories) do
+    categoryLayouts[cat.key] = Registry:buildLayout(cat.key)
+end
+
 local NUM_PROFILES = Utils.NUM_PROFILES
 
 local function DrawColoredText(color, text)
@@ -126,28 +132,26 @@ end
 -- =============================================================================
 -- STAGING TABLE (plain Lua — no chalk overhead)
 -- =============================================================================
-local staging = {
-    RunModifiers = {},
-    QoLSettings = {},
-    BugFixes = {},
-    FirstHammers = {},
-}
+local staging = { FirstHammers = {} }
+for _, cat in ipairs(categories) do
+    staging[cat.key] = {}
+end
 
 local function ShallowCopy(src, dst)
     for k, v in pairs(src) do dst[k] = v end
 end
 
 local function SnapshotConfigToStaging()
-    ShallowCopy(config.RunModifiers, staging.RunModifiers)
-    ShallowCopy(config.QoLSettings, staging.QoLSettings)
-    ShallowCopy(config.BugFixes, staging.BugFixes)
+    for _, cat in ipairs(categories) do
+        ShallowCopy(config[cat.key], staging[cat.key])
+    end
     ShallowCopy(config.FirstHammers, staging.FirstHammers)
 end
 
 local function CommitStagingToConfig()
-    ShallowCopy(staging.RunModifiers, config.RunModifiers)
-    ShallowCopy(staging.QoLSettings, config.QoLSettings)
-    ShallowCopy(staging.BugFixes, config.BugFixes)
+    for _, cat in ipairs(categories) do
+        ShallowCopy(staging[cat.key], config[cat.key])
+    end
     ShallowCopy(staging.FirstHammers, config.FirstHammers)
 end
 
@@ -470,24 +474,13 @@ local function DrawMainWindow()
             ui.EndTabItem()
         end
 
-        -- TAB 3: RUN MODIFIERS
-        if ui.BeginTabItem("Run Modifiers") then
-            ui.Spacing()
-            DrawCheckboxGroup(runModifierLayout, staging.RunModifiers)
-            ui.EndTabItem()
-        end
-
-        -- TAB 4: BUG FIXES
-        if ui.BeginTabItem("Bug Fixes") then
-            ui.Spacing()
-            DrawCheckboxGroup(bugFixLayout, staging.BugFixes)
-            ui.EndTabItem()
-        end
-
-        if ui.BeginTabItem("QoL") then
-            ui.Spacing()
-            DrawCheckboxGroup(qolSettingsLayout, staging.QoLSettings)
-            ui.EndTabItem()
+        -- Dynamic category tabs (registry-driven)
+        for _, cat in ipairs(categories) do
+            if ui.BeginTabItem(cat.label) then
+                ui.Spacing()
+                DrawCheckboxGroup(categoryLayouts[cat.key], staging[cat.key])
+                ui.EndTabItem()
+            end
         end
         
         if ui.BeginTabItem("Profiles") then

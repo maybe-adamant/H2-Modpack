@@ -44,6 +44,7 @@ return {
         DeathCutScene = true,
         SpawnInTrainingGrounds = true,
         KBMEscapeAlt = true,
+        ShowArcanaAndFearVictoryScreen = true,
     },
 
     

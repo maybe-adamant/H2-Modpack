@@ -332,6 +332,7 @@ modutil.mod.Path.Wrap("ShowHealthUI", function(base)
     if config.ModEnabled then
         displayedHash = nil  -- HUD was recreated, force update
         UpdateModMark()
+        -- UpdateVoidMarker()
         if config.QoLSettings.AlwaysShowLocation then
             ShowDepthCounter()
         end

@@ -54,6 +54,7 @@ local function on_ready()
     -- ApplyModdedMark()
     import("def.lua")
     import("qol.lua")
+    import("victory.lua")
     import("logic.lua")
 end
 
@@ -61,6 +62,7 @@ local function on_reload()
     import_as_fallback(rom.game)
     import("def.lua")
     import("qol.lua")
+    import("victory.lua")
     import("ui.lua")
 end
 

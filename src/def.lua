@@ -408,7 +408,13 @@ Utils.qolSettingsLayout = {
 			{
 				Key = "KBMEscapeAlt",
 				Name = "Fixing Escape Behavior for KBM",
-				Tooltip = "KBM Escape will now work during boon/pom Selection, Hex selection, PoS menu, and during death sequences.",}
+				Tooltip = "KBM Escape will now work during boon/pom Selection, Hex selection, PoS menu, and during death sequences.",
+			},
+			{
+				Key = "ShowArcanaAndFearVictoryScreen",
+				Name = "Show Arcana and Fear on the initial Victory Screen",
+				Tooltip = "Displays the Arcana and Fear victory screen.",
+			}
 		},
 	},
 

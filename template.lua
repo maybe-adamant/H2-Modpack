@@ -118,3 +118,24 @@ modutil.once_loaded.game(function()
         if config.Enabled then apply() end
     end)
 end)
+
+-- =============================================================================
+-- STANDALONE UI (do not modify)
+-- =============================================================================
+-- When adamant-core is NOT installed, renders a minimal ImGui toggle.
+-- When adamant-core IS installed, the core handles UI — this is skipped.
+
+rom.gui.add_to_menu_bar(function()
+    if mods['adamant-Core'] then return end
+    if rom.ImGui.BeginMenu("adamant") then
+        local val, chg = rom.ImGui.Checkbox(public.definition.name, config.Enabled)
+        if chg then
+            config.Enabled = val
+            if val then apply() else disable() end
+        end
+        if rom.ImGui.IsItemHovered() and public.definition.tooltip ~= "" then
+            rom.ImGui.SetTooltip(public.definition.tooltip)
+        end
+        rom.ImGui.EndMenu()
+    end
+end)

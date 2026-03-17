@@ -45,6 +45,7 @@ return {
         SpawnInTrainingGrounds = true,
         KBMEscapeAlt = true,
         ShowArcanaAndFearVictoryScreen = true,
+        SpeedrunTimer = false,
     },
 
     

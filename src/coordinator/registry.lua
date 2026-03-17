@@ -28,8 +28,8 @@ Registry._order = {}
 Registry._categoryCounters = {}
 Registry._categoryOrder = {}   -- first-seen ordered list of category keys
 Registry._categoryLabels = {   -- category key -> display label (built-in defaults)
-    BugFixes = "Bug Fixes",
     RunModifiers = "Run Modifiers",
+    BugFixes = "Bug Fixes",
     QoLSettings = "QoL",
 }
 Registry._categorySet = {}     -- quick lookup to avoid duplicates in _categoryOrder

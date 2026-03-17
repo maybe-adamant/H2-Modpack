@@ -30,6 +30,7 @@ import 'modules/qol/skip_death_cutscene.lua'
 import 'modules/qol/spawn_location.lua'
 import 'modules/qol/kbm_escape.lua'
 import 'modules/qol/victory_screen.lua'
+import 'modules/timer/speedrun_timer.lua'
 
 -- Bug Fixes
 import 'modules/fixes/corrosion.lua'

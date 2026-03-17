@@ -190,7 +190,7 @@ local displayedHash = nil
 
 ScreenData.HUD.ComponentData.ModpackMark = {
     RightOffset = 20,
-    Y = 200,
+    Y = 250,
     TextArgs = {
         Text = "",
         Font = "MonospaceTypewriterBold",
@@ -217,22 +217,11 @@ local function UpdateModMark()
     displayedHash = currentHash
 end
 
-local function ShowDepthCounter()
-    local screen = { Name = "RoomCount", Components = {} }
-    screen.ComponentData = {
-        RoomCount = DeepCopyTable(ScreenData.TraitTrayScreen.ComponentData.RoomCount)
-    }
-    CreateScreenFromData(screen, screen.ComponentData)
-end
-
 modutil.mod.Path.Wrap("ShowHealthUI", function(base)
     base()
     if config.ModEnabled then
         displayedHash = nil
         UpdateModMark()
-        if config.QoLSettings.AlwaysShowLocation then
-            ShowDepthCounter()
-        end
     end
 end)
 

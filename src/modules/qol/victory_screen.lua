@@ -1,7 +1,5 @@
 local Registry = adamant_Modpack.Registry
 
--- Victory screen: custom meta upgrade + shrine upgrade display at bottom center
--- This is a larger self-contained feature module
 
 local MetaUpgradeDisplay = {
     StartY = 895,

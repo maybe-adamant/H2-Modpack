@@ -1,5 +1,13 @@
 local Registry = adamant_Modpack.Registry
 
+local function ShowDepthCounter()
+    local screen = { Name = "RoomCount", Components = {} }
+    screen.ComponentData = {
+        RoomCount = DeepCopyTable(ScreenData.TraitTrayScreen.ComponentData.RoomCount)
+    }
+    CreateScreenFromData(screen, screen.ComponentData)
+end
+
 Registry:register({
     id = "AlwaysShowLocation",
     name = "Always Show Location Counter",
@@ -7,5 +15,14 @@ Registry:register({
     group = "QoL",
     tooltip = "Always displays the current location in the UI.",
     default = true,
-    -- Rendering handled by the HUD system in hud.lua (ShowHealthUI wrap)
+
+    hooks = {
+        {
+            target = "ShowHealthUI",
+            fn = function(baseFunc)
+                baseFunc()
+                ShowDepthCounter()
+            end,
+        },
+    },
 })
